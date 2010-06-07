@@ -16,6 +16,11 @@ include(CommonSetup)
 include_directories(${PROJECT_SOURCE_DIR}/external/include)
 include_directories(${PROJECT_SOURCE_DIR}/src)
 
+include(FindPkgConfig)
+pkg_check_modules(BASE "base-types" )
+include_directories(${BASE_INCLUDE_DIRS})
+link_directories(${BASE_LIBDIR})
+
 # command line output on, you can also use make VERBOSE=1
 # set(CMAKE_VERBOSE_MAKEFILE on)
 
