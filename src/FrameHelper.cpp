@@ -13,41 +13,41 @@ void FrameHelper::convertColor(const Frame &src,Frame &dst)
 	//RGB --> RGB
 	case MODE_RGB:
 	  if(src.getDataDepth() != dst.getDataDepth())
-	    std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode rgb to rgb with different data depths. Conversion is not implemented.");
+	    throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode rgb to rgb with different data depths. Conversion is not implemented.");
 	  else
 	    dst.init(src,true);
 	break;
 	
 	//RGB --> grayscale
 	case MODE_GRAYSCALE:
-	  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode rgb to grayscale. Conversion is not implemented.");
+	   throw  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode rgb to grayscale. Conversion is not implemented.");
 	  break;
 	  
 	//RGB --> bayer pattern  
 	case MODE_BAYER:
-	  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode rgb to bayer pattern. Please specify bayer pattern (RGGB,GRBG,BGGR,GBRG).");
+	   throw  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode rgb to bayer pattern. Please specify bayer pattern (RGGB,GRBG,BGGR,GBRG).");
 	  break;
 	  
 	case MODE_BAYER_RGGB:
 	case MODE_BAYER_GRBG:
 	case MODE_BAYER_BGGR:
 	case MODE_BAYER_GBRG:
-	  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode rgb to bayer pattern. Conversion is not implemented.");
+	  throw  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode rgb to bayer pattern. Conversion is not implemented.");
 	  break;
 	  
 	default:
-	  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode - mode is unknown");
+	  throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode - mode is unknown");
 	}
       break;
     
     //grayscale --> ?
     case MODE_GRAYSCALE:
-      std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode grayscale to ?. Conversion is not implemented.");
+      throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode grayscale to ?. Conversion is not implemented.");
       break;
     
     //bayer pattern --> ?  
     case MODE_BAYER:
-      std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode bayer to ?. Please specify bayer pattern (RGGB,GRBG,BGGR,GBRG).");
+      throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode bayer to ?. Please specify bayer pattern (RGGB,GRBG,BGGR,GBRG).");
       break;
       
     //bayer pattern --> ?    
@@ -68,12 +68,12 @@ void FrameHelper::convertColor(const Frame &src,Frame &dst)
 	
 	//bayer --> grayscale
 	case MODE_GRAYSCALE:
-	  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode bayer to grayscale. Conversion is not implemented.");
+	  throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode bayer to grayscale. Conversion is not implemented.");
 	  break;
 	  
 	//bayer --> bayer pattern  
 	case MODE_BAYER:
-	  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode bayer to bayer pattern. Please specify bayer pattern (RGGB,GRBG,BGGR,GBRG).");
+	  throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode bayer to bayer pattern. Please specify bayer pattern (RGGB,GRBG,BGGR,GBRG).");
 	  break;
 	  
 	case MODE_BAYER_RGGB:
@@ -83,16 +83,16 @@ void FrameHelper::convertColor(const Frame &src,Frame &dst)
 	  if(src.getDataDepth() == dst.getDataDepth() && dst.getFrameMode() == src.getFrameMode())
 	     dst.init(src,true);
 	  else
-	    std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode bayer to bayer pattern with different pattern or data depth. Conversion is not implemented.");
+	    throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode bayer to bayer pattern with different pattern or data depth. Conversion is not implemented.");
 	  break;
 	  
 	default:
-	  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode bayer to ? - mode is unknown");
+	  throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode bayer to ? - mode is unknown");
 	}
       break;
       
     default:
-      std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode ?- mode is unknown");
+      throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode ?- mode is unknown");
   }
 }
   
