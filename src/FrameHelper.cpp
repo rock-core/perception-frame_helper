@@ -20,7 +20,7 @@ void FrameHelper::convertColor(const Frame &src,Frame &dst)
 	
 	//RGB --> grayscale
 	case MODE_GRAYSCALE:
-	   throw  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode rgb to grayscale. Conversion is not implemented.");
+            convertRGBToGray(src,dst);
 	  break;
 	  
 	//RGB --> bayer pattern  
@@ -95,8 +95,58 @@ void FrameHelper::convertColor(const Frame &src,Frame &dst)
       throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode ?- mode is unknown");
   }
 }
+
+//only a data depth of 1 Byte is supported
+void FrameHelper::convertRGBToGray(const Frame &src,Frame &dst,bool copy_attributes)
+{
+  if(src.getPixelSize() != 3)
+     throw std::runtime_error("FrameHelper::convertRGBToGray: Can only convert frame mode rgb 24 bit to grayscale 8 bit!");
+
+  static bool initialized = false;
+  static uint8_t rFact[256];
+  static uint8_t gFact[256];
+  static uint8_t bFact[256];
   
+  if(!initialized)
+  {
+      // populating some lookup tables
+      int i;
+      for (i = 0; i < 256; ++i)
+      {
+          rFact[i] =  (uint8_t)((double)(0.299) * (double)(i));
+          gFact[i] =  (uint8_t)((double)(0.587) * (double)(i));
+          bFact[i] =  (uint8_t)((double)(0.114) * (double)(i));
+      }
+      initialized = true;
+  }
   
+  //set source to right format if it is not set
+  if(src.getWidth() != dst.getWidth() ||
+     src.getHeight() != dst.getHeight() ||
+     dst.getFrameMode() != MODE_GRAYSCALE ||
+     dst.getPixelSize() != 1)
+    {
+      dst.init(src.getWidth(),src.getHeight(),8,MODE_GRAYSCALE,-1);
+    }
+
+  //convert pixels
+  const uint8_t *psrc = src.getImageConstPtr();
+  uint8_t *pdst = dst.getImagePtr();
+  const uint8_t *pend =  src.getLastConstByte();
+  ++pend;
+  while (psrc != pend)
+  {
+      uint8_t r = *(psrc++);
+      uint8_t g = *(psrc++);
+      uint8_t b = *(psrc++);
+      uint32_t val =  (uint8_t)(rFact[r] + gFact[g] + bFact[b]);
+      *(pdst++) = (uint8_t)( (val > 255) ? 255 : val);
+  }
+
+  //copy frame attributes
+  if(copy_attributes)
+    dst.copyImageIndependantAttributes(src);
+}
   
 void FrameHelper::convertBayerToRGB24(const uint8_t *src, uint8_t *dst, int width, int height, frame_mode_t mode)
 {
