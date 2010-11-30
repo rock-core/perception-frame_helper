@@ -62,7 +62,6 @@ public:
   	  unsigned int i,j;
 	  uint8_t u,v,y1,y2,cb,cr,r1,r2,b1,b2,g1,g2;
           uint8_t* pbuffer1 = (uint8_t*) dst.bits();
-          printf("w:%d, h:%d",width,height);
           for(i = 0 ;i < height ;++i){
           	for(j = 0 ;j < width ;j+=2){
                         u      = pbuffer[(i*width*2)+j*2+0];
