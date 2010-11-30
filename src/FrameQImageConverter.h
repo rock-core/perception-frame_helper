@@ -58,7 +58,7 @@ public:
 
        case base::samples::frame::MODE_UYVY:{
 	
-	  unsigned int theCounter = 0	// just for testing
+	  unsigned int theCounter = 0;	// just for testing
   	  unsigned int i,j;
 	  uint8_t u,v,y1,y2,cb,cr,r1,r2,b1,b2,g1,g2;
           uint8_t* pbuffer1 = (uint8_t*) dst.bits();
