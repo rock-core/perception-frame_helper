@@ -10,7 +10,9 @@ class FrameHelper
     static void convertColor(const base::samples::frame::Frame &src,base::samples::frame::Frame &dst);
     static void convertBayerToRGB24(const uint8_t *src, uint8_t *dst, int width, int height ,base::samples::frame::frame_mode_t mode);
     static void convertRGBToGray(const base::samples::frame::Frame &src,base::samples::frame::Frame &dst,bool copy_attributes =true);
-  
+
+    static void convertBayerToGreenChannel(const uint8_t *src, uint8_t *dst, int width, int height, base::samples::frame::frame_mode_t mode);
+    static void convertBayerToGreenChannel(const base::samples::frame::Frame &src,base::samples::frame::Frame &dst);
 };
 
 #endif // FRAMEHELPER_H

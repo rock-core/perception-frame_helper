@@ -225,5 +225,82 @@ void FrameHelper::convertBayerToRGB24(const uint8_t *src, uint8_t *dst, int widt
 
 	blue = -blue;
 	start_with_green = !start_with_green;
+void FrameHelper::convertBayerToGreenChannel(const Frame &src,Frame &dst)
+{
+
+    //check dst format 
+    if(dst.frame_mode != MODE_GRAYSCALE)
+        std::runtime_error("FrameHelper::converBayerToGreenChannel: Cannot convert frame mode bayer to green channel. Dst image must be of mode MODE_GRAYSCALE.");
+
+    if(src.getDataDepth() != dst.getDataDepth())
+        std::runtime_error("FrameHelper::converBayerToGreenChannel: Cannot convert frame mode bayer to green channel. src and dst must have the same data depth.");
+
+    dst.init(src.getWidth(),src.getHeight(),src.getDataDepth(),dst.getFrameMode());
+    convertBayerToGreenChannel(src.getImageConstPtr(),dst.getImagePtr(),src.getWidth(),src.getHeight(),src.frame_mode);	
+    dst.copyImageIndependantAttributes(src);
+}
+
+
+//reads the green channel from an image which uses a bayer pattern
+void FrameHelper::convertBayerToGreenChannel(const uint8_t *src, uint8_t *dst, int width, int height, frame_mode_t mode)
+{
+    const int srcStep = width;
+    const int dstStep =  width;
+    int blue = mode == MODE_BAYER_RGGB
+        || mode == MODE_BAYER_GRBG ? 1 : -1;
+    int start_with_green = mode == MODE_BAYER_GBRG
+        || mode == MODE_BAYER_GRBG ;
+    int i, imax;
+
+    if (!(mode==MODE_BAYER_RGGB||mode==MODE_BAYER_GBRG||mode==MODE_BAYER_GRBG||mode==MODE_BAYER_BGGR))
+        throw std::runtime_error("Helper::convertBayerToRGB24: Unknown Bayer pattern");
+
+    // add a black border around the image
+    imax = width * height;
+    
+    // black border at bottom
+    for(i = width * (height - 1); i < imax; i++) 
+    {
+        dst[i] = 0;
+    }
+
+    // black border at right side
+    for (i = width-1; i < imax; i += width) 
+        dst[i] = 0;
+
+    //   dst ++;
+    width --;
+    height --;
+
+    //for each row 
+    for (; height--; src += srcStep, dst += dstStep) {
+        const uint8_t *srcEnd = src + width;
+        if (start_with_green) {
+            dst[0] = (src[0] + src[srcStep + 1] + 1) >> 1;
+            src++;
+            dst++;
+        }
+        if (blue > 0) {
+            for (; src <= srcEnd - 2; src += 2, dst += 2) {
+                dst[0] = (src[1] + src[srcStep] + 1) >> 1;
+                dst[1] = (src[1] + src[srcStep + 2] + 1) >> 1;
+            }
+        } else {
+            for (; src <= srcEnd - 2; src += 2, dst += 2) {
+                dst[0] = (src[1] + src[srcStep] + 1) >> 1;
+                dst[1] = (src[1] + src[srcStep + 2] + 1) >> 1;
+            }
+        }
+
+        if (src < srcEnd) {
+            dst[0] = (src[1] + src[srcStep] + 1) >> 1;
+            src++;
+            dst++;
+        }
+        src -= width;
+        dst -= width;
+
+        blue = -blue;
+        start_with_green = !start_with_green;
     }
 }
