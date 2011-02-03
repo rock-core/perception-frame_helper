@@ -3,7 +3,7 @@
 
 using namespace base::samples::frame;
 
-void FrameHelper::convertColor(const Frame &src,Frame &dst)
+void FrameHelper::convertColor(const base::samples::frame::Frame &src,base::samples::frame::Frame &dst)
 {
     switch(src.getFrameMode())
     {
@@ -97,7 +97,7 @@ void FrameHelper::convertColor(const Frame &src,Frame &dst)
 }
 
 //only a data depth of 1 Byte is supported
-void FrameHelper::convertRGBToGray(const Frame &src,Frame &dst,bool copy_attributes)
+void FrameHelper::convertRGBToGray(const base::samples::frame::Frame &src,base::samples::frame::Frame &dst,bool copy_attributes)
 {
     if(src.getPixelSize() != 3)
         throw std::runtime_error("FrameHelper::convertRGBToGray: Can only convert frame mode rgb 24 bit to grayscale 8 bit!");
@@ -148,7 +148,7 @@ void FrameHelper::convertRGBToGray(const Frame &src,Frame &dst,bool copy_attribu
         dst.copyImageIndependantAttributes(src);
 }
 
-void FrameHelper::convertBayerToRGB24(const uint8_t *src, uint8_t *dst, int width, int height, frame_mode_t mode)
+void FrameHelper::convertBayerToRGB24(const uint8_t *src, uint8_t *dst, int width, int height, base::samples::frame::frame_mode_t mode)
 {
     const int srcStep = width;
     const int dstStep = 3 * width;
@@ -229,7 +229,7 @@ void FrameHelper::convertBayerToRGB24(const uint8_t *src, uint8_t *dst, int widt
     }
 }
 
-void FrameHelper::convertBayerToGreenChannel(const Frame &src,Frame &dst)
+void FrameHelper::convertBayerToGreenChannel(const base::samples::frame::Frame &src,base::samples::frame::Frame &dst)
 {
 
     //check dst format 
@@ -246,7 +246,7 @@ void FrameHelper::convertBayerToGreenChannel(const Frame &src,Frame &dst)
 
 
 //reads the green channel from an image which uses a bayer pattern
-void FrameHelper::convertBayerToGreenChannel(const uint8_t *src, uint8_t *dst, int width, int height, frame_mode_t mode)
+void FrameHelper::convertBayerToGreenChannel(const uint8_t *src, uint8_t *dst, int width, int height, base::samples::frame::frame_mode_t mode)
 {
     const int srcStep = width;
     const int dstStep =  width;
