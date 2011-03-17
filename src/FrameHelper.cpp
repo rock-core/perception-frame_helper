@@ -229,6 +229,34 @@ void FrameHelper::convertBayerToRGB24(const uint8_t *src, uint8_t *dst, int widt
     }
 }
 
+void FrameHelper::calcDiff(const base::samples::frame::Frame &src1,const base::samples::frame::Frame &src2,base::samples::frame::Frame &dst)
+{
+    int frame_total_size = src1.getNumberOfBytes();
+
+    if(frame_total_size != src2.getNumberOfBytes())
+        throw std::runtime_error("calcDiff: size missmatch between src1 and src2 --> can not calc diff! ");
+    if(src1.data_depth != 8)
+        throw std::runtime_error("calcDiff: only 8 bit data depth is supported!");
+
+    const uint8_t *p_src1 = src1.getImageConstPtr();
+    const uint8_t *p_src2 = src2.getImageConstPtr();
+    if(dst.size != src1.size || dst.getNumberOfBytes() != frame_total_size)
+        dst.init(src1,false);
+
+    uint8_t *p_dst = dst.getImagePtr();
+
+    for(int i=0;i < frame_total_size;++i)
+    {
+        if(*p_src1 > *p_src2)
+            *p_dst = *p_src1-*p_src2;
+        else
+            *p_dst = *p_src2-*p_src1;
+        ++p_dst;
+        ++p_src1;
+        ++p_src2;
+    }
+}
+
 void FrameHelper::convertBayerToGreenChannel(const base::samples::frame::Frame &src,base::samples::frame::Frame &dst)
 {
 
@@ -261,7 +289,7 @@ void FrameHelper::convertBayerToGreenChannel(const uint8_t *src, uint8_t *dst, i
 
     // add a black border around the image
     imax = width * height;
-    
+
     // black border at bottom
     for(i = width * (height - 1); i < imax; i++) 
     {
