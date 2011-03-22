@@ -29,11 +29,11 @@ public:
   //returns 1 if the size or format of dst has been changed  otherwise 0
  //int copyFrameToQImageRGB888(QImage &dst,base::samples::frame::frame_mode_t mode,int pixel_size, int width,int height,const char* pbuffer)
   //{
-  int copyFrameToQImageRGB888(QImage &dst,base::samples::frame::frame_mode_t mode,int pixel_size, int width,int height, const char* pbuffer)
+  int copyFrameToQImageRGB888(QImage &dst,base::samples::frame::frame_mode_t mode,int pixel_size, unsigned int width,unsigned int height, const char* pbuffer)
   {
     int ireturn = 0;
     //check if dst has the right format
-    if(dst.width() != width || dst.height()!= height || dst.format() != QImage::Format_RGB888)
+    if((unsigned int) dst.width() != width || (unsigned int) dst.height()!= height || dst.format() != QImage::Format_RGB888)
     {
         dst = QImage(width,height,QImage::Format_RGB888);
         ireturn = 1;
@@ -57,8 +57,6 @@ public:
           break;
 
        case base::samples::frame::MODE_UYVY:{
-	
-	  unsigned int theCounter = 0;	// just for testing
   	  unsigned int i,j;
 	  uint8_t u,v,y1,y2,cb,cr,r1,r2,b1,b2,g1,g2;
           uint8_t* pbuffer1 = (uint8_t*) dst.bits();
@@ -116,7 +114,7 @@ public:
           //conversion --> one additional copy
 
           //check if buffer has the right format
-          if(image_buffer.width() != width || image_buffer.height()!= height || image_buffer.format() != QImage::Format_Indexed8)
+          if((unsigned int)image_buffer.width() != width ||(unsigned int) image_buffer.height()!= height || image_buffer.format() != QImage::Format_Indexed8)
           {
              image_buffer = QImage(width,height,QImage::Format_Indexed8);
              for(int i = 0;i<256;++i)
