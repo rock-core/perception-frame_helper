@@ -18,13 +18,46 @@
 #include <QtGui/QImage>
 #include "FrameHelper.h"
 #include <stdexcept>
+#include <math.h>
+#include <limits>
 
+static const float MAX_H = 10.0f;    //this value is used to convert a 64Bit grayscale image 
+                                     //to a rgb image
+                                     //if a vaule of 10 is reached ==>  h = 360° but s will be reduced 
 class FrameQImageConverter
 {
 public:
   FrameQImageConverter(){};
   virtual
   ~FrameQImageConverter(){};
+
+/**
+ * Converts an HSV color value to RGB. Conversion formula
+ * adapted from http://en.wikipedia.org/wiki/HSV_color_space.
+ * Assumes h, s, and v are contained in the set [0, 1] and
+ * returns r, g, and b in the set [0, 255].
+ *
+ * @param   Number  h       The hue
+ * @param   Number  s       The saturation
+ * @param   Number  v       The value
+ * @return  Array           The RGB representation
+ */
+    void hsvToRgb(float h, float s, float v,int &r, int &g, int &b)
+    {
+        int i = h * 6;
+        float f = h * 6 - i;
+        float p = v * (1 - s);
+        float q = v * (1 - f * s);
+        float t = v * (1 - (1 - f) * s);
+        switch(i % 6){
+            case 0: r = v*255; g = t*255; b = p*255; break;
+            case 1: r = q*255; g = v*255; b = p*255; break;
+            case 2: r = p*255; g = v*255; b = t*255; break;
+            case 3: r = p*255; g = q*255; b = v*255; break;
+            case 4: r = t*255; g = p*255; b = v*255; break;
+            case 5: r = v*255; g = p*255; b = q*255; break;
+        }
+    }
 
   //returns 1 if the size or format of dst has been changed  otherwise 0
  //int copyFrameToQImageRGB888(QImage &dst,base::samples::frame::frame_mode_t mode,int pixel_size, int width,int height,const char* pbuffer)
@@ -52,7 +85,7 @@ public:
           FrameHelper::convertBayerToRGB24((const uint8_t*)pbuffer,(uint8_t*) dst.bits(), width, height ,mode);
        break;
 
-	       case base::samples::frame::MODE_RGB:
+       case base::samples::frame::MODE_RGB:
           memcpy(dst.bits(),pbuffer,width*height*pixel_size);
           break;
 
@@ -69,14 +102,6 @@ public:
                   
 			cb = u;
 			cr = v;	
-			// 	To convert uyvy image grayscale change r1-g2 vars to these
-			//	r1 = y1;
-			//	b1 = y1;
-			//	g1 = y1;
-			//	r2 = y2;
-			//	b2 = y2;
-			//	g2 = y2;
-
 			
 			//no-rounding conversion method
 			r1 = (255/219)*(y1-16) + (255/112)*0.701*(cr-128);
@@ -87,13 +112,6 @@ public:
 			g2 = (255/219)*(y2-16) + (255/112)*0.886*(0.114/0.587)*(cb-128)-(255/112)*0.701*(0.299/0.587)*(cr-128);
 			b2 = (255/219)*(y2-16) + (255/112)*0.886*(cb-128);
 
-
-
-			// for testing
-			//if(theCounter <10){
-			//	printf("r1: %d g1: %d b1: %d\n",r1,g1,b1);
-			//	printf("u: %d y1: %d v: %d y2: %d\n",u,y1,v,y2);
-			//	}
                         pbuffer1[(i*width*3)+j*3+0] = r1;
                         pbuffer1[(i*width*3)+j*3+1] = g1;
                         pbuffer1[(i*width*3)+j*3+2] = b1;
@@ -102,27 +120,77 @@ public:
                         pbuffer1[(i*width*3)+j*3+5] = b2;
                 }
           }
-
-	  //	to save a frame:a
-	  //	QString fileName2("asd2.bmp");
-	  //	dst.save(fileName2);	
-	
 	break;
 	}
        case base::samples::frame::MODE_GRAYSCALE:
-          //There is no conversion available by FrameHelper use qt
-          //conversion --> one additional copy
-
-          //check if buffer has the right format
-          if((unsigned int)image_buffer.width() != width ||(unsigned int) image_buffer.height()!= height || image_buffer.format() != QImage::Format_Indexed8)
+                  
+          switch(pixel_size)
           {
-             image_buffer = QImage(width,height,QImage::Format_Indexed8);
-             for(int i = 0;i<256;++i)
-               image_buffer.setColor(i,qRgb(i,i,i));
-          }
+            case 1:
+                //check if buffer has the right format
+                if((unsigned int)image_buffer.width() != width ||(unsigned int) image_buffer.height()!= height || image_buffer.format() != QImage::Format_Indexed8)
+                {
+                    image_buffer = QImage(width,height,QImage::Format_Indexed8);
+                    for(int i = 0;i<256;++i)
+                        image_buffer.setColor(i,qRgb(i,i,i));
+                }
 
-          memcpy(image_buffer.bits(),pbuffer,width*height*pixel_size);
-          dst = image_buffer.convertToFormat(QImage::Format_RGB888);
+                //There is no conversion available by FrameHelper use qt
+                //conversion --> one additional copy
+                memcpy(image_buffer.bits(),pbuffer,width*height*pixel_size);
+                dst = image_buffer.convertToFormat(QImage::Format_RGB888);
+                break;
+            case 8:     //we have to scale the 64 data depth --> a rgb color coding is used
+                {
+                    static const float SCALE_H = 1/MAX_H;
+                    static const double SCALE_S = 1/floor(std::numeric_limits<double>::max()*SCALE_H);
+                
+                    int pixels = width*height;
+                    double *data = (double*)pbuffer;
+                    unsigned char* data2 =  dst.bits();
+                    int r,g,b;
+                    float h,s,v;
+                    v = 1;      //use always a value of one for the color coding
+                                //h and s are changed accordingly to the pixel value
+
+                    //for each pixel of the map 
+                    for(int i=0;i < pixels;++i,++data)
+                    {
+                        //display black if value is +- infinity
+                        if(fabs(*data) == std::numeric_limits<double>::infinity())
+                        {
+                            r = 0;
+                            g = 0;
+                            b = 0;
+                        }
+                        else
+                        {
+                            //+ and - values are displayed in the same way
+                            if(*data > 0)
+                            {
+                                h = fmod(*data,MAX_H)*SCALE_H;
+                                s = 1-floor(*data*SCALE_H)*SCALE_S;
+                            }
+                            else
+                            {
+                                h = fmod(-*data,MAX_H)*SCALE_H;
+                                s = 1-floor(-*data*SCALE_H)*SCALE_S;
+                            }
+                            hsvToRgb(h,s,v,r,g,b);
+                        }
+                        //copy data to dest image
+                        *data2 = (unsigned char) r;
+                        ++data2;
+                        *data2 = (unsigned char) g;
+                        ++data2;
+                        *data2 = (unsigned char) b;
+                        ++data2;
+                    }
+                    break;
+                }
+            default:
+                throw std::runtime_error("Pixel size is not supported by FrameQImageConverter!");
+          }
           break;
 
        default:
