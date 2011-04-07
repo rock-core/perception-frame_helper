@@ -250,7 +250,7 @@ void FrameHelper::calcDiff(const base::samples::frame::Frame &src1,const base::s
         if(*p_src1 > *p_src2)
             *p_dst = *p_src1-*p_src2;
         else
-            *p_dst = *p_src2-*p_src1;
+            *p_dst = 0;//*p_src2-*p_src1;
         ++p_dst;
         ++p_src1;
         ++p_src2;
