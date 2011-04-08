@@ -74,31 +74,35 @@ public:
 
     switch(mode)
     {
-      case base::samples::frame::MODE_UNDEFINED:
-        throw std::runtime_error(" FrameQImageConverter::copyFrameToQImageRGB888: Unknown frame mode!");
-        break;
+       case base::samples::frame::MODE_UNDEFINED:
+          throw std::runtime_error(" FrameQImageConverter::copyFrameToQImageRGB888: Unknown frame mode!");
+          break;
 
        case base::samples::frame::MODE_BAYER_RGGB:
        case base::samples::frame::MODE_BAYER_GRBG:
        case base::samples::frame::MODE_BAYER_BGGR:
        case base::samples::frame::MODE_BAYER_GBRG:
-          FrameHelper::convertBayerToRGB24((const uint8_t*)pbuffer,(uint8_t*) dst.bits(), width, height ,mode);
+          FrameHelper::convertBayerToRGB24((const uint8_t*)pbuffer,(uint8_t*) dst.bits(), width, height, mode);
        break;
 
        case base::samples::frame::MODE_RGB:
-          memcpy(dst.bits(),pbuffer,width*height*pixel_size);
+          // Provide the buffer as const uchar* and call bits() to make QImage
+          // do a deep copy. This is needed to ensure that QImage gets proper
+          // buffer alignment
+          dst = QImage((const uchar*)pbuffer, width, height, width*pixel_size, QImage::Format_RGB888);
+          dst.bits();
           break;
 
        case base::samples::frame::MODE_UYVY:{
   	  unsigned int i,j;
 	  uint8_t u,v,y1,y2,cb,cr,r1,r2,b1,b2,g1,g2;
-          uint8_t* pbuffer1 = (uint8_t*) dst.bits();
           for(i = 0 ;i < height ;++i){
+                uint8_t* output_line = dst.scanLine(i);
           	for(j = 0 ;j < width ;j+=2){
                         u      = pbuffer[(i*width*2)+j*2+0];
                         y1     = pbuffer[(i*width*2)+j*2+1];
                         v      = pbuffer[(i*width*2)+j*2+2];
-                        y2      = pbuffer[(i*width*2)+j*2+3];
+                        y2     = pbuffer[(i*width*2)+j*2+3];
                   
 			cb = u;
 			cr = v;	
@@ -112,12 +116,12 @@ public:
 			g2 = (255/219)*(y2-16) + (255/112)*0.886*(0.114/0.587)*(cb-128)-(255/112)*0.701*(0.299/0.587)*(cr-128);
 			b2 = (255/219)*(y2-16) + (255/112)*0.886*(cb-128);
 
-                        pbuffer1[(i*width*3)+j*3+0] = r1;
-                        pbuffer1[(i*width*3)+j*3+1] = g1;
-                        pbuffer1[(i*width*3)+j*3+2] = b1;
-                        pbuffer1[(i*width*3)+j*3+3] = r2;
-                        pbuffer1[(i*width*3)+j*3+4] = g2;
-                        pbuffer1[(i*width*3)+j*3+5] = b2;
+                        output_line[j*3+0] = r1;
+                        output_line[j*3+1] = g1;
+                        output_line[j*3+2] = b1;
+                        output_line[j*3+3] = r2;
+                        output_line[j*3+4] = g2;
+                        output_line[j*3+5] = b2;
                 }
           }
 	break;
@@ -127,18 +131,7 @@ public:
           switch(pixel_size)
           {
             case 1:
-                //check if buffer has the right format
-                if((unsigned int)image_buffer.width() != width ||(unsigned int) image_buffer.height()!= height || image_buffer.format() != QImage::Format_Indexed8)
-                {
-                    image_buffer = QImage(width,height,QImage::Format_Indexed8);
-                    for(int i = 0;i<256;++i)
-                        image_buffer.setColor(i,qRgb(i,i,i));
-                }
-
-                //There is no conversion available by FrameHelper use qt
-                //conversion --> one additional copy
-                memcpy(image_buffer.bits(),pbuffer,width*height*pixel_size);
-                dst = image_buffer.convertToFormat(QImage::Format_RGB888);
+                dst = QImage((uchar*)pbuffer, width, height, width, QImage::Format_Indexed8).convertToFormat(QImage::Format_RGB888);
                 break;
             case 8:     //we have to scale the 64 data depth --> a rgb color coding is used
                 {
