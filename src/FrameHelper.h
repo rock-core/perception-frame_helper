@@ -33,7 +33,7 @@ namespace frame_helper
             //this is none static because an internal buffer is used which is not be resized if the
             //src and dst have always the same attributes
             void convert(const base::samples::frame::Frame &src,base::samples::frame::Frame &dst,
-                    int offset_x = 0, int offset_y = 0, ResizeAlgorithm algo = INTER_LINEAR,bool undisort=false);
+                    int offset_x = 0, int offset_y = 0, ResizeAlgorithm algo = INTER_LINEAR, bool bundistort=false);
             void setCalibrationParameters(const CalibrationParameters &para)
             {calcCalibrationMatrix(para,mat1,mat2);};
             void setCalibrationParameters(const cv::Mat &mat1, const cv::Mat &mat2){this->mat1 = mat1; this->mat2 = mat2;};
