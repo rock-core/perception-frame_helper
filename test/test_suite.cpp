@@ -13,7 +13,7 @@
 #include <iostream>
 
 using namespace base::samples::frame;
-
+using namespace frame_helper;
 
 //test if min max search is working
 BOOST_AUTO_TEST_CASE(convert_image)
