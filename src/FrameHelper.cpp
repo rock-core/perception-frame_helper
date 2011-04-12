@@ -3,10 +3,224 @@
 
 using namespace base::samples::frame;
 
+
+enum ConvertMode{
+    COPY = 0,
+    RESIZE = 1,
+    COLOR = 2,
+    UNDISTORT = 4
+};
+
+void FrameHelper::convert(const base::samples::frame::Frame &src,
+                          base::samples::frame::Frame &dst,
+                          int offset_x,
+                          int offset_y,
+                          ResizeAlgorithm algo,
+                          bool bundistort)
+{
+    //find out which mode shall be used
+    int mode = COPY;
+    if(src.getFrameMode() != dst.getFrameMode() || src.getDataDepth() != dst.getDataDepth())
+        mode += COLOR;
+    if(src.size.width != dst.size.width || src.size.height != dst.size.height)
+        mode += RESIZE;
+    if(bundistort)
+        mode += UNDISTORT;
+
+    const cv::Mat cv_src = src.convertToCvMat();
+    cv::Mat cv_dst = dst.convertToCvMat();
+
+    //this is needed to prevent 
+    //copies 
+    switch(mode)
+    {
+        case COPY:
+            dst.init(src,true);
+            break;
+        case RESIZE:
+            resize(src,dst,offset_x,offset_y,algo);
+            break;
+        case COLOR:
+            convertColor(src,dst);
+            break;
+        case UNDISTORT:
+            undistort(src,dst,mat1,mat2);
+            break;
+        case RESIZE + COLOR:
+            frame_buffer.init(src.getWidth(),src.getHeight(),dst.getDataDepth(),dst.getFrameMode(),false);
+            convertColor(src,frame_buffer);
+            resize(frame_buffer,dst,offset_x,offset_y,algo);
+            break;
+        case RESIZE + UNDISTORT:
+            frame_buffer2.init(frame_buffer,false);
+            resize (frame_buffer,frame_buffer2,offset_x,offset_y,algo);
+            undistort(frame_buffer2,dst,mat1,mat2);
+            break;
+        case COLOR + UNDISTORT:
+            frame_buffer2.init(dst,false);
+            convertColor(frame_buffer,frame_buffer2);
+            undistort(frame_buffer2,dst,mat1,mat2);
+            break;
+        case RESIZE + COLOR + UNDISTORT:
+            frame_buffer.init(src.getWidth(),src.getHeight(),dst.getDataDepth(),dst.getFrameMode(),false);
+            convertColor(src,frame_buffer);
+            frame_buffer2.init(dst,false);
+            resize(frame_buffer,frame_buffer2,offset_x,offset_y,algo);
+            undistort(frame_buffer2,dst,mat1,mat2);
+            break;
+    }
+    dst.copyImageIndependantAttributes(src);
+}
+void FrameHelper::calcStereoCalibrationMatrix(const CalibrationParameters &para1,
+                                              const CalibrationParameters &para2,
+                                              cv::Mat &mat11, cv::Mat &mat21,
+                                              cv::Mat &mat12, cv::Mat &mat22)
+{
+    
+}
+
+
+void FrameHelper::undistort(const base::samples::frame::Frame &src,
+                            base::samples::frame::Frame &dst,
+                            const cv::Mat &map1,const cv::Mat &map2)
+{
+    const cv::Mat cv_src = src.convertToCvMat();
+    cv::Mat cv_dst = dst.convertToCvMat();
+    remap(cv_src, cv_dst, map1, map2, cv::INTER_CUBIC);
+}
+
+void FrameHelper::resize(const base::samples::frame::Frame &src,
+                         base::samples::frame::Frame &dst,
+                         int offset_x,int offset_y,
+                         ResizeAlgorithm algo)
+{
+    //check if both images have the same color format
+    if(src.getFrameMode() != dst.getFrameMode())
+        throw std::runtime_error("FrameHelper::resize: Cannot resize frame. Dst and src have different frame modes.");
+
+    cv::Mat cv_src = src.convertToCvMat();
+    cv::Mat cv_dst = dst.convertToCvMat();
+    if(offset_x != 0 || offset_y != 0)
+        cv_src = cv::Mat(cv_src,cv::Rect(offset_x,offset_y,cv_dst.cols,cv_dst.rows));
+
+    switch(algo)
+    {
+        case INTER_LINEAR:
+            cv::resize(cv_src, cv_dst, cv::Size(cv_dst.cols, cv_dst.rows), 0, 0, cv::INTER_LINEAR);
+            break;
+        case INTER_NEAREST:
+            cv::resize(cv_src, cv_dst, cv::Size(cv_dst.cols, cv_dst.rows), 0, 0, cv::INTER_NEAREST);
+            break;
+        case INTER_AREA:
+            cv::resize(cv_src, cv_dst, cv::Size(cv_dst.cols, cv_dst.rows), 0, 0, cv::INTER_AREA);
+            break;
+        case INTER_LANCZOS4:
+            cv::resize(cv_src, cv_dst, cv::Size(cv_dst.cols, cv_dst.rows), 0, 0, cv::INTER_LANCZOS4);
+            break;
+        case INTER_CUBIC:
+            cv::resize(cv_src, cv_dst, cv::Size(cv_dst.cols, cv_dst.rows), 0, 0, cv::INTER_CUBIC);
+            break;
+        case BAYER_RESIZE:
+            resize_bayer(src,dst,offset_x,offset_y);
+    }
+}
+
+void FrameHelper::resize_bayer(const base::samples::frame::Frame &src,base::samples::frame::Frame &dst,
+                              int offset_x,int offset_y)
+{
+    //check if src mode is bayer
+    if(!src.isBayer())
+        throw std::runtime_error("FrameHelper::resize_bayer: Cannot resize frame. Src mode is not MODE_BAYER.");
+
+    //check if both images have the same color format
+    if(src.getFrameMode() != dst.getFrameMode())
+        throw std::runtime_error("FrameHelper::resize_bayer: Cannot resize frame. Dst and src have different frame modes.");
+    
+    const int resize_factor_x = src.size.width / dst.size.width;
+    const int resize_factor_y = src.size.height / dst.size.height;
+
+    //check if src size is a multiple of two times dst size
+    if(src.size.width%dst.size.width ||
+       src.size.height%dst.size.height ||
+       resize_factor_x != resize_factor_y ||
+       resize_factor_x % 2||
+       resize_factor_y % 2)
+        throw std::runtime_error("FrameHelper::resize_bayer: cannot resize frame. "
+                                 "The src is not a multiple of two times dst size or "
+                                 "scale x is != scale y");
+    //copy image 
+    const uint8_t * psrc = src.getImageConstPtr()+offset_y*src.getWidth();
+    uint8_t *pdst = dst.getImagePtr();
+    int src_width = src.getWidth()-offset_x;
+    int src_height = src.getHeight()-offset_y;
+
+    //for each row
+    for(int i=0; i<src_height;++i)
+    {
+        psrc += offset_x;
+        const uint8_t *pend = psrc+src_width;
+        //copy row
+        while(psrc < pend)
+        {
+            *(pdst++) = *(psrc++);
+            *(pdst++) = *(psrc++);
+            //skip columns
+            psrc = psrc + resize_factor_x;
+        }
+        //skip rows
+        if(i%2)
+        {
+            i += resize_factor_y;
+            psrc += resize_factor_y*src.getWidth();
+        }
+    }
+}
+
 void FrameHelper::convertColor(const base::samples::frame::Frame &src,base::samples::frame::Frame &dst)
 {
     switch(src.getFrameMode())
     {
+    case MODE_BGR:
+        switch(dst.getFrameMode())
+        {
+            //BGR --> RGB
+        case MODE_RGB:
+            if(src.getDataDepth() != dst.getDataDepth())
+                throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode rgb to bgr with different data depths. Conversion is not implemented.");
+            else
+            {
+                const cv::Mat cv_src = src.convertToCvMat();
+                cv::Mat cv_dst = dst.convertToCvMat();
+                cv::cvtColor(cv_src,cv_dst,CV_BGR2RGB);
+            }
+            break;
+
+            //BGR --> grayscale
+        case MODE_GRAYSCALE:
+        {
+            const cv::Mat cv_src = src.convertToCvMat();
+            cv::Mat cv_dst = dst.convertToCvMat();
+            cv::cvtColor(cv_src,cv_dst,CV_BGR2GRAY);
+            break;
+        }
+            //RGB --> bayer pattern  
+        case MODE_BAYER:
+            throw  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode rgb to bayer pattern. Please specify bayer pattern (RGGB,GRBG,BGGR,GBRG).");
+            break;
+
+        case MODE_BAYER_RGGB:
+        case MODE_BAYER_GRBG:
+        case MODE_BAYER_BGGR:
+        case MODE_BAYER_GBRG:
+            throw  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode bgrb to bayer pattern. Conversion is not implemented.");
+            break;
+
+        default:
+            throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode - mode is unknown");
+        }
+        break;
+
+
     case MODE_RGB:
         switch(dst.getFrameMode())
         {
