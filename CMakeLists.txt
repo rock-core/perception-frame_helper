@@ -21,6 +21,10 @@ pkg_check_modules(BASE "base-types" )
 include_directories(${BASE_INCLUDE_DIRS})
 link_directories(${BASE_LIBDIR})
 
+pkg_check_modules(OPENCV "opencv" )
+include_directories(${OPENCV_INCLUDE_DIRS})
+link_directories(${OPENCV_LIBDIR})
+
 # command line output on, you can also use make VERBOSE=1
 # set(CMAKE_VERBOSE_MAKEFILE on)
 
@@ -45,10 +49,17 @@ link_directories(${BASE_LIBDIR})
 #find_package(Boost REQUIRED COMPONENTS graph filesystem)
 #include_directories(${Boost_INCLUDE_DIRS})
 
+find_package(Boost REQUIRED COMPONENTS unit_test_framework)
+if (Boost_UNIT_TEST_FRAMEWORK_FOUND)
+  message(STATUS "boost/test found")
+else()
+  message(STATUS "boost/test not found ... NOT building the test suite")
+endif()
 ### Update external libraries that are available
 set(EXTERNAL_LIBS ${Boost_LIBRARIES} ${QT_LIBRARIES})
 
 # Process CMakeLists.txt in the following subdirectory
 add_subdirectory(src)
+add_subdirectory(test)
 
 
