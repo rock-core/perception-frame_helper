@@ -19,7 +19,7 @@ add_library(${PROJECT_NAME} SHARED FrameHelper.cpp ${EXTERNAL_LIBS} ${moc_cpp} $
 #
 # If you want to use a library defined in this package, just use its name
 #
-target_link_libraries(${PROJECT_NAME} ${EXTERNAL_LIBS} )
+target_link_libraries(${PROJECT_NAME} ${EXTERNAL_LIBS} ${OPENCV_LIBRARIES})
 
 install(TARGETS ${PROJECT_NAME} 
     RUNTIME DESTINATION bin
