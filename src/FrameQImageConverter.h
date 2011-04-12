@@ -94,6 +94,13 @@ public:
           break;
 
        case base::samples::frame::MODE_UYVY:{
+          // WARNING
+          // WARNING: this code has been changed in order to account for the
+          // WARNING: 4-byte line padding requirements of QImage
+          // WARNING: due to the lack of an UYVY image provider at the moment,
+          // WARNING: it cannot be tested
+          // WARNING
+          // WARNING: please contact rock-dev if it does not work.
   	  unsigned int i,j;
 	  uint8_t u,v,y1,y2,cb,cr,r1,r2,b1,b2,g1,g2;
           for(i = 0 ;i < height ;++i){
