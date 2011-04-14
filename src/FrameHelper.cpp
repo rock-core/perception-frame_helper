@@ -455,9 +455,8 @@ namespace frame_helper
 
         const uint8_t *p_src1 = src1.getImageConstPtr();
         const uint8_t *p_src2 = src2.getImageConstPtr();
-        if(dst.size != src1.size || dst.getNumberOfBytes() != frame_total_size)
-            dst.init(src1,false);
 
+        dst.init(src1,false);
         uint8_t *p_dst = dst.getImagePtr();
 
         for(int i=0;i < frame_total_size;++i)
@@ -474,7 +473,6 @@ namespace frame_helper
 
     void FrameHelper::convertBayerToGreenChannel(const base::samples::frame::Frame &src,base::samples::frame::Frame &dst)
     {
-
         //check dst format 
         if(dst.frame_mode != MODE_GRAYSCALE)
             std::runtime_error("FrameHelper::converBayerToGreenChannel: Cannot convert frame mode bayer to green channel. Dst image must be of mode MODE_GRAYSCALE.");
@@ -482,11 +480,10 @@ namespace frame_helper
         if(src.getDataDepth() != dst.getDataDepth())
             std::runtime_error("FrameHelper::converBayerToGreenChannel: Cannot convert frame mode bayer to green channel. src and dst must have the same data depth.");
 
-        dst.init(src.getWidth(),src.getHeight(),src.getDataDepth(),dst.getFrameMode());
+        dst.init(src.getWidth(),src.getHeight(),src.getDataDepth(),dst.getFrameMode(),-1);
         convertBayerToGreenChannel(src.getImageConstPtr(),dst.getImagePtr(),src.getWidth(),src.getHeight(),src.frame_mode);	
         dst.copyImageIndependantAttributes(src);
     }
-
 
     //reads the green channel from an image which uses a bayer pattern
     void FrameHelper::convertBayerToGreenChannel(const uint8_t *src, uint8_t *dst, int width, int height, base::samples::frame::frame_mode_t mode)
