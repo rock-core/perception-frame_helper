@@ -171,12 +171,12 @@ namespace frame_helper
                                     //+ and - values are displayed in the same way
                                     if(*data > 0)
                                     {
-                                        h = fmod(*data,MAX_H)*SCALE_H;
+                                        h = ::fmod(*data,MAX_H)*SCALE_H;
                                         s = 1-floor(*data*SCALE_H)*SCALE_S;
                                     }
                                     else
                                     {
-                                        h = fmod(-*data,MAX_H)*SCALE_H;
+                                        h = ::fmod(-*data,MAX_H)*SCALE_H;
                                         s = 1-floor(-*data*SCALE_H)*SCALE_S;
                                     }
                                     hsvToRgb(h,s,v,r,g,b);
