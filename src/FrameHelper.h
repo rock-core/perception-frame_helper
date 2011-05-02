@@ -20,11 +20,18 @@ namespace frame_helper
             //is done
             base::samples::frame::Frame frame_buffer;
             base::samples::frame::Frame frame_buffer2;
-            cv::Mat mat1;
-            cv::Mat mat2;
+
+            //mapping matrix for undistort
+            //if the size of the image is not changing
+            //the mapping is calculated only once 
+            cv::Mat map_x;
+            cv::Mat map_y;
+            CalibrationParameterMono calibration_parameter_mono;
+            int calibration_image_width;
+            int calibration_image_height;
 
         public:
-            FrameHelper(){};
+            FrameHelper();
 
             //converts one frame to another frame
             //this can be used to convert colors resize and undistort frames
@@ -34,21 +41,20 @@ namespace frame_helper
             //src and dst have always the same attributes
             void convert(const base::samples::frame::Frame &src,base::samples::frame::Frame &dst,
                     int offset_x = 0, int offset_y = 0, ResizeAlgorithm algo = INTER_LINEAR, bool bundistort=false);
-            void setCalibrationParameters(const CalibrationParameters &para)
-            {calcCalibrationMatrix(para,mat1,mat2);};
-            void setCalibrationParameters(const cv::Mat &mat1, const cv::Mat &mat2){this->mat1 = mat1; this->mat2 = mat2;};
 
-            void static calcCalibrationMatrix(const CalibrationParameters &para, cv::Mat &mat1, cv::Mat &mat2)
-            {};
-            void static calcStereoCalibrationMatrix(const CalibrationParameters &para1,
-                    const CalibrationParameters &para2,
-                    cv::Mat &mat11, cv::Mat &mat21,
-                    cv::Mat &mat12, cv::Mat &mat22);
+            //sets the calibration paramter for the camera
+            //parameter: 
+            //para              intrinsic and distortion parameters
+            void setCalibrationParameter(const CalibrationParameterMono &para);
 
             //this is a convenience function to undistort a frame
+            //call setCalibrationParameter first
             //see cv::remap 
-            static void undistort(const base::samples::frame::Frame &src,base::samples::frame::Frame &dst,
-                    const cv::Mat &mat1,const cv::Mat &mat2);
+            void undistort(const base::samples::frame::Frame &src,base::samples::frame::Frame &dst);
+
+            //calculates the mapping to undistort a mono image
+            //this function is called from undistort no need to called your self
+            void static calcCalibrationMatrix(const CalibrationParameterMono &para, int image_width,int image_height,cv::Mat &map_x, cv::Mat &map_y);
 
             //resizes a bayer image without converting it to another color format by skipping pixels
             //The size of src must be a multiple of two times dst size
@@ -60,6 +66,44 @@ namespace frame_helper
             //the size is implied by the dst frame
             static void resize(const base::samples::frame::Frame &src,base::samples::frame::Frame &dst,
                     int offset_x = 0, int offset_y = 0,ResizeAlgorithm algo = INTER_LINEAR);
+
+
+            //calculates the distance in meters to an object seen on an image
+            //parameters:
+            //f                 focal length of the camera in pixels which has taken the image
+            //                  set f = fx if the width of the object is used as size
+            //                  set f = fy if the height of the object is used as size
+            //virtual_size      size of the object in pixels  
+            //real_size         size of the object in meters 
+            static float calcDistanceToObject(float f,float virtual_size,float real_size);
+
+
+            //calculates the distance in meters to an object seen on an image
+            //parameters:
+            //frame             frame which must have the additional attributes fx (focal length) and fy 
+            //virtual_width     width of the object in pixels  
+            //real_width        width of the object in meters 
+            //virtual_height    height of the object in pixels  
+            //real_height       height of the object in meters 
+            //you can set width or height to zero if you do not want to use it
+            //internal always the biggest dimension is used to calculate the distance
+            static float calcDistanceToObject(const base::samples::frame::Frame &frame,
+                                              float virtual_width,float real_width,
+                                              float virtual_height,float real_height);
+
+            //calculates the distance in meters between to image points
+            //parameters:
+            //fx        focal length of the camera 
+            //fy        focal length of the camera 
+            //x1        x coordinate of the first point in pixels 
+            //y1        y coordinate of the first point in pixels
+            //x2        x coordinate of the second point in pixels 
+            //y2        y coordinate of the second point in pixels
+            //d         distance between the first and second point 
+            static float calcDistanceToPoint(float fx,float fy, int x1,int y1,int x2,int y2, float d);
+            static float calcDistanceToPoint(const base::samples::frame::Frame &frame,
+                                             int x1,int y1,int x2,int y2, float d);
+
 
             //converts src to dst 
             //the mode of dst implies the conversion 

@@ -12,12 +12,15 @@ namespace frame_helper
         UNDISTORT = 4
     };
 
+    FrameHelper::FrameHelper():calibration_image_width(-1),calibration_image_height(-1)
+    {}
+
     void FrameHelper::convert(const base::samples::frame::Frame &src,
             base::samples::frame::Frame &dst,
             int offset_x,
             int offset_y,
             ResizeAlgorithm algo,
-            bool bundistort)
+            bool bdewrap)
     {
         //find out which mode shall be used
         int mode = COPY;
@@ -25,7 +28,7 @@ namespace frame_helper
             mode += COLOR;
         if(src.size.width != dst.size.width || src.size.height != dst.size.height)
             mode += RESIZE;
-        if(bundistort)
+        if(bdewrap)
             mode += UNDISTORT;
 
         const cv::Mat cv_src = src.convertToCvMat();
@@ -45,7 +48,7 @@ namespace frame_helper
             convertColor(src,dst);
             break;
         case UNDISTORT:
-            undistort(src,dst,mat1,mat2);
+            undistort(src,dst);
             break;
         case RESIZE + COLOR:
             frame_buffer.init(src.getWidth(),src.getHeight(),dst.getDataDepth(),dst.getFrameMode(),false);
@@ -55,39 +58,79 @@ namespace frame_helper
         case RESIZE + UNDISTORT:
             frame_buffer2.init(frame_buffer,false);
             resize (frame_buffer,frame_buffer2,offset_x,offset_y,algo);
-            undistort(frame_buffer2,dst,mat1,mat2);
+            undistort(frame_buffer2,dst);
             break;
         case COLOR + UNDISTORT:
             frame_buffer2.init(dst,false);
             convertColor(frame_buffer,frame_buffer2);
-            undistort(frame_buffer2,dst,mat1,mat2);
+            undistort(frame_buffer2,dst);
             break;
         case RESIZE + COLOR + UNDISTORT:
             frame_buffer.init(src.getWidth(),src.getHeight(),dst.getDataDepth(),dst.getFrameMode(),false);
             convertColor(src,frame_buffer);
             frame_buffer2.init(dst,false);
             resize(frame_buffer,frame_buffer2,offset_x,offset_y,algo);
-            undistort(frame_buffer2,dst,mat1,mat2);
+            undistort(frame_buffer2,dst);
             break;
         }
         dst.copyImageIndependantAttributes(src);
     }
-    void FrameHelper::calcStereoCalibrationMatrix(const CalibrationParameters &para1,
-            const CalibrationParameters &para2,
-            cv::Mat &mat11, cv::Mat &mat21,
-            cv::Mat &mat12, cv::Mat &mat22)
-    {
 
+    void FrameHelper::setCalibrationParameter(const CalibrationParameterMono &para)
+    {
+        calibration_parameter_mono = para;
+        calibration_image_width = 0;
+        calibration_image_height = 0;
+        //calcCalibrationMatrix is called from dewrap when the image size is known
     }
 
+    void FrameHelper::calcCalibrationMatrix(const CalibrationParameterMono &para,int image_width,int image_height, cv::Mat &map_x, cv::Mat &map_y)
+    {
+        cv::Mat intrinsic(3, 3, CV_64F);
+        intrinsic = 0.0;
+        intrinsic.at<double>(2,2) = 1.0;
+        intrinsic.at<double>(0,0) = para.fx;
+        intrinsic.at<double>(0,2) = para.cx;
+        intrinsic.at<double>(1,1) = para.fy;
+        intrinsic.at<double>(1,2) = para.cy;
+
+        cv::Mat distortion(1, 4, CV_64F);
+        distortion.at<double>(0,0) = para.d0;
+        distortion.at<double>(0,1) = para.d1;
+        distortion.at<double>(0,2) = para.d2;
+        distortion.at<double>(0,3) = para.d3;
+
+        cv::Size target_size = cv::Size(image_width, image_height);
+        cv::Mat mat;
+        cv::initUndistortRectifyMap(intrinsic,distortion,mat,intrinsic,target_size,CV_32FC1,map_x,map_y);
+    }
 
     void FrameHelper::undistort(const base::samples::frame::Frame &src,
-            base::samples::frame::Frame &dst,
-            const cv::Mat &map1,const cv::Mat &map2)
+            base::samples::frame::Frame &dst)
     {
+        //check if calibration was set;
+        if(calibration_image_width == -1)
+            throw std::runtime_error("FrameHelper::dewrap: No calibration map was set!");
+
+        //check if size has changed
+        if(src.getHeight() != calibration_image_height ||
+           src.getWidth() != calibration_image_width)
+        {
+            calibration_image_width = src.getHeight();
+            calibration_image_height = src.getWidth();
+            calcCalibrationMatrix(calibration_parameter_mono,calibration_image_width,calibration_image_height,map_x,map_y);
+        }
+
+        dst.init(src,false);
         const cv::Mat cv_src = src.convertToCvMat();
         cv::Mat cv_dst = dst.convertToCvMat();
-        remap(cv_src, cv_dst, map1, map2, cv::INTER_CUBIC);
+        remap(cv_src, cv_dst, map_x, map_y, cv::INTER_CUBIC);
+
+        //encode the focal length and center into the frame
+        dst.setAttribute("fx",calibration_parameter_mono.fx);
+        dst.setAttribute("fy",calibration_parameter_mono.fy);
+        dst.setAttribute("cx",calibration_parameter_mono.cx);
+        dst.setAttribute("cy",calibration_parameter_mono.cy);
     }
 
     void FrameHelper::resize(const base::samples::frame::Frame &src,
@@ -361,6 +404,55 @@ namespace frame_helper
         //copy frame attributes
         if(copy_attributes)
             dst.copyImageIndependantAttributes(src);
+    }
+
+
+    //assumption 
+    //the size of the object does not change with its position on the image plane
+    float FrameHelper::calcDistanceToPoint(float fx,float fy, int x1,int y1,int x2,int y2, float d)
+    {
+        float dx = x1-x2;
+        float dy = y1-y2;
+        return sqrt(pow(dx*d/fx,2)+pow(dy*d/fy,2));
+    }
+
+    //assumption 
+    //the size of the object does not change with its position on the image plane
+    float FrameHelper::calcDistanceToObject(float f,float virtual_size,float real_size)
+    {
+        return real_size*f/virtual_size;
+    }
+
+    float FrameHelper::calcDistanceToPoint(const base::samples::frame::Frame &frame,
+            int x1,int y1,int x2,int y2, float d)
+    {
+        if(!frame.hasAttribute("fx"))
+            throw std::runtime_error("FrameHelper::calcDistanceToObject: frame has no attribute fx");
+        if(!frame.hasAttribute("fy"))
+            throw std::runtime_error("FrameHelper::calcDistanceToObject: frame has no attribute fy");
+
+        float fx = frame.getAttribute<float>("fx"); 
+        float fy = frame.getAttribute<float>("fy"); 
+        calcDistanceToPoint(fx,fy,x1,y1,x2,y2,d);
+    }
+
+    float FrameHelper::calcDistanceToObject(const base::samples::frame::Frame &frame,
+            float virtual_width,float real_width,
+            float virtual_height,float real_height)
+    {
+        if(virtual_width > virtual_height)
+        {
+            if(!frame.hasAttribute("fx"))
+                throw std::runtime_error("FrameHelper::calcDistanceToObject: frame has no attribute fx");
+            float fx = frame.getAttribute<float>("fx"); 
+            return calcDistanceToObject(fx,virtual_width,real_width);
+        }
+
+        if(!frame.hasAttribute("fy"))
+            throw std::runtime_error("FrameHelper::calcDistanceToObject: frame has no attribute fy");
+
+        float fy = frame.getAttribute<float>("fy"); 
+        return calcDistanceToObject(fy,virtual_height,real_height);
     }
 
     void FrameHelper::convertBayerToRGB24(const uint8_t *src, uint8_t *dst, int width, int height, base::samples::frame::frame_mode_t mode)

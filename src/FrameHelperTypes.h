@@ -4,9 +4,15 @@
 //structure for camera calibration 
 namespace frame_helper
 {
-    struct CalibrationParameters
+    struct CalibrationParameterMono
     {
-        double fx, fy, cx, cy, d0, d1, d2, d3;
+        double fx, fy, cx, cy, d0, d1, d2, d3; 
+    };
+
+    struct CalibrationParameterStereo
+    {
+        CalibrationParameterMono left_camera;
+        CalibrationParameterMono rigth_camera;
         double tx, ty, tz;
         double rx, ry, rz;
     };
