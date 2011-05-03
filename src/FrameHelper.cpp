@@ -76,15 +76,15 @@ namespace frame_helper
         dst.copyImageIndependantAttributes(src);
     }
 
-    void FrameHelper::setCalibrationParameter(const CalibrationParameterMono &para)
+    void FrameHelper::setCalibrationParameter(const CalibrationParameters &para)
     {
-        calibration_parameter_mono = para;
+        calibration_parameters = para;
         calibration_image_width = 0;
         calibration_image_height = 0;
         //calcCalibrationMatrix is called from dewrap when the image size is known
     }
 
-    void FrameHelper::calcCalibrationMatrix(const CalibrationParameterMono &para,int image_width,int image_height, cv::Mat &map_x, cv::Mat &map_y)
+    void FrameHelper::calcCalibrationMatrix(const CalibrationParameters &para,int image_width,int image_height, cv::Mat &map_x, cv::Mat &map_y)
     {
         cv::Mat intrinsic(3, 3, CV_64F);
         intrinsic = 0.0;
@@ -118,7 +118,7 @@ namespace frame_helper
         {
             calibration_image_width = src.getHeight();
             calibration_image_height = src.getWidth();
-            calcCalibrationMatrix(calibration_parameter_mono,calibration_image_width,calibration_image_height,map_x,map_y);
+            calcCalibrationMatrix(calibration_parameters,calibration_image_width,calibration_image_height,map_x,map_y);
         }
 
         dst.init(src,false);
@@ -127,10 +127,10 @@ namespace frame_helper
         remap(cv_src, cv_dst, map_x, map_y, cv::INTER_CUBIC);
 
         //encode the focal length and center into the frame
-        dst.setAttribute("fx",calibration_parameter_mono.fx);
-        dst.setAttribute("fy",calibration_parameter_mono.fy);
-        dst.setAttribute("cx",calibration_parameter_mono.cx);
-        dst.setAttribute("cy",calibration_parameter_mono.cy);
+        dst.setAttribute("fx",calibration_parameters.fx);
+        dst.setAttribute("fy",calibration_parameters.fy);
+        dst.setAttribute("cx",calibration_parameters.cx);
+        dst.setAttribute("cy",calibration_parameters.cy);
     }
 
     void FrameHelper::resize(const base::samples::frame::Frame &src,

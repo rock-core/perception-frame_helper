@@ -26,7 +26,7 @@ namespace frame_helper
             //the mapping is calculated only once 
             cv::Mat map_x;
             cv::Mat map_y;
-            CalibrationParameterMono calibration_parameter_mono;
+            CalibrationParameters calibration_parameters;
             int calibration_image_width;
             int calibration_image_height;
 
@@ -45,7 +45,7 @@ namespace frame_helper
             //sets the calibration paramter for the camera
             //parameter: 
             //para              intrinsic and distortion parameters
-            void setCalibrationParameter(const CalibrationParameterMono &para);
+            void setCalibrationParameter(const CalibrationParameters &para);
 
             //this is a convenience function to undistort a frame
             //call setCalibrationParameter first
@@ -54,7 +54,7 @@ namespace frame_helper
 
             //calculates the mapping to undistort a mono image
             //this function is called from undistort no need to called your self
-            void static calcCalibrationMatrix(const CalibrationParameterMono &para, int image_width,int image_height,cv::Mat &map_x, cv::Mat &map_y);
+            void static calcCalibrationMatrix(const CalibrationParameters &para, int image_width,int image_height,cv::Mat &map_x, cv::Mat &map_y);
 
             //resizes a bayer image without converting it to another color format by skipping pixels
             //The size of src must be a multiple of two times dst size
