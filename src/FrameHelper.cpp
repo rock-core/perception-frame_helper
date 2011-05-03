@@ -205,21 +205,24 @@ namespace frame_helper
         //for each row
         for(int i=0; i<src_height;++i)
         {
-            psrc += offset_x;
-            const uint8_t *pend = psrc+src_width;
-            //copy row
-            while(psrc < pend)
-            {
-                *(pdst++) = *(psrc++);
-                *(pdst++) = *(psrc++);
-                //skip columns
-                psrc = psrc + resize_factor_x;
-            }
             //skip rows
             if(i%2)
             {
                 i += resize_factor_y;
                 psrc += resize_factor_y*src.getWidth();
+            }
+            else
+            {
+                psrc += offset_x;
+                const uint8_t *pend = psrc+src_width;
+                //copy row
+                while(psrc < pend)
+                {
+                    *(pdst++) = *(psrc++);
+                    *(pdst++) = *(psrc++);
+                    //skip columns
+                    psrc = psrc + resize_factor_x;
+                }
             }
         }
     }
