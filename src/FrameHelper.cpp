@@ -184,45 +184,45 @@ namespace frame_helper
         if(src.getFrameMode() != dst.getFrameMode())
             throw std::runtime_error("FrameHelper::resize_bayer: Cannot resize frame. Dst and src have different frame modes.");
 
-        const int resize_factor_x = src.size.width / dst.size.width;
-        const int resize_factor_y = src.size.height / dst.size.height;
-
-        //check if src size is a multiple of two times dst size
-        if(src.size.width%dst.size.width ||
-                src.size.height%dst.size.height ||
-                resize_factor_x != resize_factor_y ||
-                resize_factor_x % 2||
-                resize_factor_y % 2)
-            throw std::runtime_error("FrameHelper::resize_bayer: cannot resize frame. "
-                    "The src is not a multiple of two times dst size or "
-                    "scale x is != scale y");
-        //copy image 
         const uint8_t * psrc = src.getImageConstPtr()+offset_y*src.getWidth();
         uint8_t *pdst = dst.getImagePtr();
         int src_width = src.getWidth()-offset_x;
         int src_height = src.getHeight()-offset_y;
+        
+        const int resize_factor_x = src_width/ dst.size.width;
+        const int resize_factor_y = src_height / dst.size.height;
+
+        //check if dst size is a multiple of two
+        if(dst.size.width%2 || dst.size.height%2)
+            throw std::runtime_error("FrameHelper::resize_bayer: cannot resize frame. "
+                    "The dst size is not a multiple of two");
+
+        //check if src size is a multiple of two times dst size
+        if(src_width%dst.size.width ||
+           src_height%dst.size.height ||
+                resize_factor_x != 2||
+                resize_factor_y != 2)
+            throw std::runtime_error("FrameHelper::resize_bayer: cannot resize frame. "
+                    "Only 0.5 as scale factor is supported");
 
         //for each row
         for(int i=0; i<src_height;++i)
         {
+            psrc += offset_x;
+            const uint8_t *pend = psrc+src_width;
+            //copy row
+            while(psrc < pend)
+            {
+                *(pdst++) = *(psrc++);
+                *(pdst++) = *(psrc++);
+                //skip columns
+                psrc = psrc + resize_factor_x;
+            }
             //skip rows
             if(i%2)
             {
                 i += resize_factor_y;
                 psrc += resize_factor_y*src.getWidth();
-            }
-            else
-            {
-                psrc += offset_x;
-                const uint8_t *pend = psrc+src_width;
-                //copy row
-                while(psrc < pend)
-                {
-                    *(pdst++) = *(psrc++);
-                    *(pdst++) = *(psrc++);
-                    //skip columns
-                    psrc = psrc + resize_factor_x;
-                }
             }
         }
     }
