@@ -22,6 +22,10 @@ namespace frame_helper
             ResizeAlgorithm algo,
             bool bdewrap)
     {
+        //set bayer pattern if not specified
+        if(dst.getFrameMode() == MODE_BAYER && src.isBayer())
+            dst.frame_mode = src.getFrameMode();
+
         //find out which mode shall be used
         int mode = COPY;
         if(src.getFrameMode() != dst.getFrameMode() || src.getDataDepth() != dst.getDataDepth())
@@ -331,9 +335,7 @@ namespace frame_helper
 
                 //bayer --> bayer pattern  
             case MODE_BAYER:
-                throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode bayer to bayer pattern. Please specify bayer pattern (RGGB,GRBG,BGGR,GBRG).");
-                break;
-
+                dst.frame_mode = src.frame_mode;
             case MODE_BAYER_RGGB:
             case MODE_BAYER_GRBG:
             case MODE_BAYER_BGGR:
