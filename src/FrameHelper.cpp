@@ -60,13 +60,13 @@ namespace frame_helper
             resize(frame_buffer,dst,offset_x,offset_y,algo);
             break;
         case RESIZE + UNDISTORT:
-            frame_buffer2.init(frame_buffer,false);
-            resize (frame_buffer,frame_buffer2,offset_x,offset_y,algo);
+            frame_buffer2.init(dst,false);
+            resize (src,frame_buffer2,offset_x,offset_y,algo);
             undistort(frame_buffer2,dst);
             break;
         case COLOR + UNDISTORT:
             frame_buffer2.init(dst,false);
-            convertColor(frame_buffer,frame_buffer2);
+            convertColor(src,frame_buffer2);
             undistort(frame_buffer2,dst);
             break;
         case RESIZE + COLOR + UNDISTORT:
