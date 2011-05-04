@@ -114,14 +114,18 @@ namespace frame_helper
     {
         //check if calibration was set;
         if(calibration_image_width == -1)
-            throw std::runtime_error("FrameHelper::dewrap: No calibration map was set!");
+            throw std::runtime_error("FrameHelper::undistort: No calibration map was set!");
+
+        //check if format is supported
+        if(src.getFrameMode() != MODE_RGB && src.getFrameMode() != MODE_GRAYSCALE )
+            throw std::runtime_error("FrameHelper::undistort: frame mode is not supported!");
 
         //check if size has changed
         if(src.getHeight() != calibration_image_height ||
            src.getWidth() != calibration_image_width)
         {
-            calibration_image_width = src.getHeight();
-            calibration_image_height = src.getWidth();
+            calibration_image_width = src.getWidth();
+            calibration_image_height = src.getHeight();
             calcCalibrationMatrix(calibration_parameters,calibration_image_width,calibration_image_height,map_x,map_y);
         }
 
