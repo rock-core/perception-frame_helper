@@ -418,11 +418,12 @@ namespace frame_helper
 
     //assumption 
     //the size of the object does not change with its position on the image plane
-    float FrameHelper::calcDistanceToPoint(float fx,float fy, int x1,int y1,int x2,int y2, float d)
+    cv::Point2f FrameHelper::calcRelPosToPoint(float fx,float fy, int x1,int y1,int x2,int y2, float d)
     {
-        float dx = x1-x2;
-        float dy = y1-y2;
-        return sqrt(pow(dx*d/fx,2)+pow(dy*d/fy,2));
+        cv::Point2f point;
+        point.x = (x1-x2)*d/fx;
+        point.y = (y1-y2)*d/fy;
+        return point;
     }
 
     //assumption 
@@ -432,7 +433,7 @@ namespace frame_helper
         return real_size*f/virtual_size;
     }
 
-    float FrameHelper::calcDistanceToPoint(const base::samples::frame::Frame &frame,
+    cv::Point2f FrameHelper::calcRelPosToPoint(const base::samples::frame::Frame &frame,
             int x1,int y1,int x2,int y2, float d)
     {
         if(!frame.hasAttribute("fx"))
@@ -442,7 +443,13 @@ namespace frame_helper
 
         float fx = frame.getAttribute<float>("fx"); 
         float fy = frame.getAttribute<float>("fy"); 
-        calcDistanceToPoint(fx,fy,x1,y1,x2,y2,d);
+        return calcRelPosToPoint(fx,fy,x1,y1,x2,y2,d);
+    }
+
+    cv::Point2f FrameHelper::calcRelPosToCenter(const base::samples::frame::Frame &frame,
+            int x1,int y1, float d)
+    {
+        return calcRelPosToPoint(frame,x1,y1,frame.getWidth()*0.5,frame.getHeight()*0.5,d);
     }
 
     float FrameHelper::calcDistanceToObject(const base::samples::frame::Frame &frame,

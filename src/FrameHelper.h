@@ -91,7 +91,7 @@ namespace frame_helper
                                               float virtual_width,float real_width,
                                               float virtual_height,float real_height);
 
-            //calculates the distance in meters between to image points
+            //calculates the relative positions in meters between to image points
             //parameters:
             //fx        focal length of the camera 
             //fy        focal length of the camera 
@@ -99,11 +99,11 @@ namespace frame_helper
             //y1        y coordinate of the first point in pixels
             //x2        x coordinate of the second point in pixels 
             //y2        y coordinate of the second point in pixels
-            //d         distance between the first and second point 
-            static float calcDistanceToPoint(float fx,float fy, int x1,int y1,int x2,int y2, float d);
-            static float calcDistanceToPoint(const base::samples::frame::Frame &frame,
+            //d         distance between the camera and the two points
+            static cv::Point2f calcRelPosToPoint(float fx,float fy, int x1,int y1,int x2,int y2, float d);
+            static cv::Point2f calcRelPosToPoint(const base::samples::frame::Frame &frame,
                                              int x1,int y1,int x2,int y2, float d);
-
+            static cv::Point2f calcRelPosToCenter(const base::samples::frame::Frame &frame,int x1,int y1,float d);
 
             //converts src to dst 
             //the mode of dst implies the conversion 
