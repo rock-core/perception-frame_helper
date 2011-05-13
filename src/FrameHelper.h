@@ -1,6 +1,8 @@
 #ifndef FRAMEHELPER_H
 #define FRAMEHELPER_H
 
+// Workaround for GCC 4.6
+#include <stddef.h>
 #include <cv.h>
 #include "base/samples/frame.h"
 #include "FrameHelperTypes.h"
