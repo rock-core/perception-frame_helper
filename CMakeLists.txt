@@ -23,7 +23,7 @@ link_directories(${BASE_LIBDIR})
 
 pkg_check_modules(OPENCV "opencv" )
 include_directories(${OPENCV_INCLUDE_DIRS})
-link_directories(${OPENCV_LIBDIR})
+link_directories(${OPENCV_LIBRARY_DIRS})
 
 # command line output on, you can also use make VERBOSE=1
 # set(CMAKE_VERBOSE_MAKEFILE on)
