@@ -21,7 +21,7 @@ pkg_check_modules(BASE "base-types" )
 include_directories(${BASE_INCLUDE_DIRS})
 link_directories(${BASE_LIBDIR})
 
-pkg_check_modules(OPENCV "opencv" )
+pkg_check_modules(OPENCV "opencv" REQUIRED)
 include_directories(${OPENCV_INCLUDE_DIRS})
 link_directories(${OPENCV_LIBRARY_DIRS})
 

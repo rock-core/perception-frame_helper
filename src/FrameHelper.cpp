@@ -1,5 +1,5 @@
 #include "FrameHelper.h"
-#include "stdexcept"
+#include <stdexcept>
 
 using namespace base::samples::frame;
 
@@ -655,5 +655,30 @@ namespace frame_helper
             blue = -blue;
             start_with_green = !start_with_green;
         }
+    }
+
+    void FrameHelper::copyMatToFrame(const cv::Mat &src, base::samples::frame::Frame &frame)
+    {
+        frame_mode_t mode;
+        int color_depth;
+        switch (src.type())
+        {
+        case CV_8UC1:
+            mode = MODE_GRAYSCALE;
+            color_depth = 8;
+            break;
+        case CV_8UC3:
+            mode = MODE_RGB;
+            color_depth = 8;
+            break;
+        default:
+            throw "Unknown format. Can not convert cv:Mat to Frame.";
+        }
+        frame.init(src.cols,src.rows,color_depth,mode);
+        cv::Mat dst = frame.convertToCvMat();
+
+        //this is only working if dst has the right size otherwise
+        //cv is allocating new memory
+        src.copyTo(dst);
     }
 }

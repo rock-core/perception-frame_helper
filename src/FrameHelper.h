@@ -1,7 +1,10 @@
 #ifndef FRAMEHELPER_H
 #define FRAMEHELPER_H
 
+// Workaround for GCC 4.6
+#include <stddef.h>
 #include "opencv/cv.h"
+//#include <cv.h>
 #include "base/samples/frame.h"
 #include "FrameHelperTypes.h"
 
@@ -51,6 +54,11 @@ namespace frame_helper
             //call setCalibrationParameter first
             //see cv::remap 
             void undistort(const base::samples::frame::Frame &src,base::samples::frame::Frame &dst);
+
+
+            //copies a cv::Mat into a Frame
+            //frame is initialized if it has not got the right size
+            static void copyMatToFrame(const cv::Mat &src, base::samples::frame::Frame &frame);
 
             //calculates the mapping to undistort a mono image
             //this function is called from undistort no need to called your self
