@@ -7,6 +7,7 @@
 //#include <cv.h>
 #include "base/samples/frame.h"
 #include "FrameHelperTypes.h"
+#include "Calibration.h"
 
 //TODO 
 //at the moment some functions call copyImageIndependantAttributes
@@ -27,11 +28,7 @@ namespace frame_helper
             //mapping matrix for undistort
             //if the size of the image is not changing
             //the mapping is calculated only once 
-            cv::Mat map_x;
-            cv::Mat map_y;
-            CalibrationParameters calibration_parameters;
-            int calibration_image_width;
-            int calibration_image_height;
+            CameraCalibrationCv calibration;
 
         public:
             FrameHelper();
@@ -48,7 +45,7 @@ namespace frame_helper
             //sets the calibration paramter for the camera
             //parameter: 
             //para              intrinsic and distortion parameters
-            void setCalibrationParameter(const CalibrationParameters &para);
+            void setCalibrationParameter(const CameraCalibration &para);
 
             //this is a convenience function to undistort a frame
             //call setCalibrationParameter first
@@ -59,10 +56,6 @@ namespace frame_helper
             //copies a cv::Mat into a Frame
             //frame is initialized if it has not got the right size
             static void copyMatToFrame(const cv::Mat &src, base::samples::frame::Frame &frame);
-
-            //calculates the mapping to undistort a mono image
-            //this function is called from undistort no need to called your self
-            void static calcCalibrationMatrix(const CalibrationParameters &para, int image_width,int image_height,cv::Mat &map_x, cv::Mat &map_y);
 
             //resizes a bayer image without converting it to another color format by skipping pixels
             //The size of src must be a multiple of two times dst size

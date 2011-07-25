@@ -12,8 +12,10 @@ namespace frame_helper
         UNDISTORT = 4
     };
 
-    FrameHelper::FrameHelper():calibration_image_width(-1),calibration_image_height(-1)
-    {}
+    FrameHelper::FrameHelper()
+    {
+	calibration.setImageSize( cv::Size( -1, -1 ) );
+    }
 
     void FrameHelper::convert(const base::samples::frame::Frame &src,
             base::samples::frame::Frame &dst,
@@ -80,16 +82,18 @@ namespace frame_helper
         dst.copyImageIndependantAttributes(src);
     }
 
-    void FrameHelper::setCalibrationParameter(const CalibrationParameters &para)
+    void FrameHelper::setCalibrationParameter(const CameraCalibration &para)
     {
-        calibration_parameters = para;
-        calibration_image_width = 0;
-        calibration_image_height = 0;
         //calcCalibrationMatrix is called from dewrap when the image size is known
+	calibration.setCalibration( para );
     }
 
-    void FrameHelper::calcCalibrationMatrix(const CalibrationParameters &para,int image_width,int image_height, cv::Mat &map_x, cv::Mat &map_y)
+    /*
+    void FrameHelper::calcCalibrationMatrix(const CameraCalibration &para,int image_width,int image_height, cv::Mat &map_x, cv::Mat &map_y)
     {
+	calibration_parameters.imageSize = cv::Size( image_width, image_height );
+	calibration_parameters.initCv();
+
         cv::Mat intrinsic(3, 3, CV_64F);
         intrinsic = 0.0;
         intrinsic.at<double>(2,2) = 1.0;
@@ -108,12 +112,13 @@ namespace frame_helper
         cv::Mat mat;
         cv::initUndistortRectifyMap(intrinsic,distortion,mat,intrinsic,target_size,CV_32FC1,map_x,map_y);
     }
+    */
 
     void FrameHelper::undistort(const base::samples::frame::Frame &src,
             base::samples::frame::Frame &dst)
     {
         //check if calibration was set;
-        if(calibration_image_width == -1)
+        if(calibration.getImageSize().width == -1)
             throw std::runtime_error("FrameHelper::undistort: No calibration map was set!");
 
         //check if format is supported
@@ -121,24 +126,23 @@ namespace frame_helper
             throw std::runtime_error("FrameHelper::undistort: frame mode is not supported!");
 
         //check if size has changed
-        if(src.getHeight() != calibration_image_height ||
-           src.getWidth() != calibration_image_width)
+        if( src.getHeight() != calibration.getImageSize().height ||
+           src.getWidth() != calibration.getImageSize().width )
         {
-            calibration_image_width = src.getWidth();
-            calibration_image_height = src.getHeight();
-            calcCalibrationMatrix(calibration_parameters,calibration_image_width,calibration_image_height,map_x,map_y);
+	    calibration.setImageSize( cv::Size( src.getWidth(), src.getHeight() ) );
+	    calibration.initCv();
         }
 
         dst.init(src,false);
         const cv::Mat cv_src = src.convertToCvMat();
         cv::Mat cv_dst = dst.convertToCvMat();
-        remap(cv_src, cv_dst, map_x, map_y, cv::INTER_CUBIC);
+        remap(cv_src, cv_dst, calibration.map1, calibration.map2, cv::INTER_CUBIC);
 
         //encode the focal length and center into the frame
-        dst.setAttribute("fx",calibration_parameters.fx);
-        dst.setAttribute("fy",calibration_parameters.fy);
-        dst.setAttribute("cx",calibration_parameters.cx);
-        dst.setAttribute("cy",calibration_parameters.cy);
+        dst.setAttribute("fx",calibration.getCalibration().fx);
+        dst.setAttribute("fy",calibration.getCalibration().fy);
+        dst.setAttribute("cx",calibration.getCalibration().cx);
+        dst.setAttribute("cy",calibration.getCalibration().cy);
     }
 
     void FrameHelper::resize(const base::samples::frame::Frame &src,
