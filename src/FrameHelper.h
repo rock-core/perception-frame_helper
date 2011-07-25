@@ -7,7 +7,7 @@
 //#include <cv.h>
 #include "base/samples/frame.h"
 #include "FrameHelperTypes.h"
-#include "Calibration.h"
+#include "CalibrationCv.h"
 
 //TODO 
 //at the moment some functions call copyImageIndependantAttributes
