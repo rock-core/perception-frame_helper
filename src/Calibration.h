@@ -1,7 +1,9 @@
 #ifndef __FRAME_HELPER_CALIBRATION_H__
 #define __FRAME_HELPER_CALIBRATION_H__
 
+#ifndef __orogen
 #include <opencv/cv.h>
+#endif
 
 namespace frame_helper
 {
@@ -34,6 +36,7 @@ namespace frame_helper
 	ExtrinsicCalibration extrinsic;
     };
 
+#ifndef __orogen
     /** 
      * Storage structure for opencv undistort maps. 
      *
@@ -84,6 +87,7 @@ namespace frame_helper
 	ExtrinsicCalibration extrinsic;
 	cv::Size imageSize;
     };
+#endif
 }
 
 #endif
