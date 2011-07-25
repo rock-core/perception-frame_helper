@@ -39,7 +39,7 @@ void CameraCalibrationCv::initCv()
 
 StereoCalibrationCv::StereoCalibrationCv() {}
 
-void StereoCalibrationCv::setCalibration( const StereoCameraCalibration& stereoCalib )
+void StereoCalibrationCv::setCalibration( const StereoCalibration& stereoCalib )
 {
     camLeft.setCalibration( stereoCalib.camLeft );
     camRight.setCalibration( stereoCalib.camRight );

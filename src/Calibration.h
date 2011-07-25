@@ -26,7 +26,7 @@ namespace frame_helper
     /**
      * Full set of parameters required for a stereo camera calibration.
      */
-    struct StereoCameraCalibration
+    struct StereoCalibration
     {
 	CameraCalibration camLeft, camRight;
 	ExtrinsicCalibration extrinsic;

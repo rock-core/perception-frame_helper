@@ -43,7 +43,7 @@ namespace frame_helper
     struct StereoCalibrationCv
     {
 	StereoCalibrationCv();
-	void setCalibration( const StereoCameraCalibration& stereoCalib );
+	void setCalibration( const StereoCalibration& stereoCalib );
 	void setImageSize( cv::Size size );
 	void initCv();
 
