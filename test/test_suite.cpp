@@ -8,7 +8,6 @@
 
 #include <iostream>
 #include <highgui.h>
-#include <cv.h>
 #include "../src/FrameHelper.h"
 #include <iostream>
 

@@ -1,6 +1,7 @@
 #ifndef __FRAME_HELPER_CALIBRATIONCV_H__
 #define __FRAME_HELPER_CALIBRATIONCV_H__
 
+#include <stddef.h>
 #include <opencv/cv.h>
 #include "Calibration.h"
 
