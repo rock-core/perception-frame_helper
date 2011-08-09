@@ -2,7 +2,7 @@
 
 using namespace frame_helper;
 
-CameraCalibrationCv::CameraCalibrationCv() {}
+CameraCalibrationCv::CameraCalibrationCv() : initialized(false) {}
 
 void CameraCalibrationCv::setCalibration( const CameraCalibration& calib )
 {
@@ -30,14 +30,24 @@ void CameraCalibrationCv::setImageSize( cv::Size size )
 
 void CameraCalibrationCv::initCv()
 {
+    if( imageSize == cv::Size() )
+	throw std::runtime_error("CameraCalibrationCv: image size not set.");
+
     cv::initUndistortRectifyMap(
 	    camMatrix, distCoeffs, 
 	    R, P, imageSize, 
 	    CV_32FC1, map1, map2 );
+
+    initialized = true;
+}
+
+bool CameraCalibrationCv::isInitialized() const
+{
+    return initialized;
 }
 
 
-StereoCalibrationCv::StereoCalibrationCv() {}
+StereoCalibrationCv::StereoCalibrationCv() : initialized(false) {}
 
 void StereoCalibrationCv::setCalibration( const StereoCalibration& stereoCalib )
 {
@@ -69,6 +79,9 @@ void StereoCalibrationCv::setImageSize( cv::Size size )
 
 void StereoCalibrationCv::initCv()
 {
+    if( imageSize == cv::Size() )
+	throw std::runtime_error("CameraCalibrationCv: image size not set.");
+
     cv::stereoRectify(
 	    camLeft.camMatrix,
 	    camLeft.distCoeffs,
@@ -85,5 +98,12 @@ void StereoCalibrationCv::initCv()
 
     camLeft.initCv();
     camRight.initCv();
+
+    initialized = true;
+}
+
+bool StereoCalibrationCv::isInitialized() const
+{
+    return initialized && camLeft.isInitialized() && camRight.isInitialized();
 }
 

@@ -24,6 +24,7 @@ namespace frame_helper
 
 	const CameraCalibration& getCalibration() const { return calib; }
 	cv::Size getImageSize() const { return imageSize; }
+	bool isInitialized() const;
 
 	cv::Mat camMatrix, distCoeffs;
 	cv::Mat R, P;
@@ -32,6 +33,7 @@ namespace frame_helper
     protected:
 	CameraCalibration calib;
 	cv::Size imageSize;
+	bool initialized;
     };
 
     /** 
@@ -49,6 +51,7 @@ namespace frame_helper
 	void initCv();
 
 	cv::Size getImageSize() const { return imageSize; }
+	bool isInitialized() const;
 
 	CameraCalibrationCv camLeft, camRight;
 	cv::Mat R, T, Q;
@@ -56,6 +59,7 @@ namespace frame_helper
     protected:
 	ExtrinsicCalibration extrinsic;
 	cv::Size imageSize;
+	bool initialized;
     };
 }
 
