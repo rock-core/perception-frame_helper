@@ -35,6 +35,7 @@ namespace frame_helper
     protected:
 	CameraCalibration calib;
 	cv::Size imageSize;
+	bool valid;
 	bool initialized;
     };
 
@@ -61,6 +62,7 @@ namespace frame_helper
     protected:
 	ExtrinsicCalibration extrinsic;
 	cv::Size imageSize;
+	bool valid;
 	bool initialized;
     };
 }

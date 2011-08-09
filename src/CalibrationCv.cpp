@@ -2,7 +2,7 @@
 
 using namespace frame_helper;
 
-CameraCalibrationCv::CameraCalibrationCv() : initialized(false) {}
+CameraCalibrationCv::CameraCalibrationCv() : valid(false), initialized(false) {}
 
 void CameraCalibrationCv::setCalibration( const CameraCalibration& calib )
 {
@@ -21,6 +21,8 @@ void CameraCalibrationCv::setCalibration( const CameraCalibration& calib )
     distCoeffs.at<double>(0,1) = calib.d1;
     distCoeffs.at<double>(0,2) = calib.d2;
     distCoeffs.at<double>(0,3) = calib.d3;
+
+    valid = true;
 }
 
 void CameraCalibrationCv::setImageSize( cv::Size size )
@@ -32,6 +34,9 @@ void CameraCalibrationCv::initCv()
 {
     if( imageSize == cv::Size() )
 	throw std::runtime_error("CameraCalibrationCv: image size not set.");
+
+    if( !valid )
+	throw std::runtime_error("CameraCalibrationCv: calibration not set.");
 
     cv::initUndistortRectifyMap(
 	    camMatrix, distCoeffs, 
@@ -52,7 +57,7 @@ void CameraCalibrationCv::undistortAndRectify( const cv::Mat& input, cv::Mat& ou
     cv::remap(input, output, map1, map2, cv::INTER_CUBIC);
 }
 
-StereoCalibrationCv::StereoCalibrationCv() : initialized(false) {}
+StereoCalibrationCv::StereoCalibrationCv() : valid(false), initialized(false) {}
 
 void StereoCalibrationCv::setCalibration( const StereoCalibration& stereoCalib )
 {
@@ -73,6 +78,8 @@ void StereoCalibrationCv::setCalibration( const StereoCalibration& stereoCalib )
     tempRot.at<double>(1,0) = extrinsic.ry;
     tempRot.at<double>(2,0) = extrinsic.rz;
     cv::Rodrigues(tempRot, R);
+
+    valid = true;
 }
 
 void StereoCalibrationCv::setImageSize( cv::Size size )
@@ -86,6 +93,9 @@ void StereoCalibrationCv::initCv()
 {
     if( imageSize == cv::Size() )
 	throw std::runtime_error("CameraCalibrationCv: image size not set.");
+
+    if( !valid )
+	throw std::runtime_error("CameraCalibrationCv: calibration not set.");
 
     cv::stereoRectify(
 	    camLeft.camMatrix,
