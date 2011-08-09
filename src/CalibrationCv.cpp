@@ -46,6 +46,11 @@ bool CameraCalibrationCv::isInitialized() const
     return initialized;
 }
 
+void CameraCalibrationCv::undistortAndRectify( const cv::Mat& input, cv::Mat& output )
+{
+    // undistort/rectify image
+    cv::remap(input, output, map1, map2, cv::INTER_CUBIC);
+}
 
 StereoCalibrationCv::StereoCalibrationCv() : initialized(false) {}
 

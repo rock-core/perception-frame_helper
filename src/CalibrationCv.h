@@ -26,6 +26,8 @@ namespace frame_helper
 	cv::Size getImageSize() const { return imageSize; }
 	bool isInitialized() const;
 
+	void undistortAndRectify( const cv::Mat& input, cv::Mat& output );
+
 	cv::Mat camMatrix, distCoeffs;
 	cv::Mat R, P;
 	cv::Mat map1, map2;
