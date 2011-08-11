@@ -1,4 +1,5 @@
 #include "CalibrationCv.h"
+#include <stdexcept>
 
 using namespace frame_helper;
 
