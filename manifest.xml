@@ -15,6 +15,7 @@
 -->
 <depend package="base/types" />
 <depend package="opencv" />
+<depend package="v4l" />
 <!--DEPEND-ENTRY-->
   <versioncontrol type="git" url="" />
   <export>
