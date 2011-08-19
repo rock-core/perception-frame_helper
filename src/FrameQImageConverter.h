@@ -158,6 +158,16 @@ namespace frame_helper
                         case 1:
                             dst = QImage((uchar*)pbuffer, width, height, width, QImage::Format_Indexed8).convertToFormat(QImage::Format_RGB888);
                             break;
+                        case 2:
+                            dst = QImage(width, height, QImage::Format_RGB888);
+							for(int x=0;x<width;x++){
+								for(int y=0;y<height;y++){
+									uint16_t *data = (uint16_t*)pbuffer;
+									uint8_t value = data[y*width+x]/255.0;
+									dst.setPixel(x,y,qRgb(value,value,value));
+								}
+							}
+                            break;
                         case 8:     //we have to scale the 64 data depth --> a rgb color coding is used
                         {
                             static const float SCALE_H = 1/MAX_H;
