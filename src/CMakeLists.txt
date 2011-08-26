@@ -19,7 +19,9 @@ add_library(${PROJECT_NAME} SHARED FrameHelper.cpp CalibrationCv.cpp ${EXTERNAL_
 #
 # If you want to use a library defined in this package, just use its name
 #
-find_library(LIBV4L2 NAMES v4l2)
+find_library(LIBV4L2 NAMES v4l2 
+	PATHS /usr/lib /usr/lib/x86_64-linux-gnu/
+)
 
 target_link_libraries(${PROJECT_NAME} ${EXTERNAL_LIBS} ${OPENCV_LIBRARIES} ${LIBV4L2})
 
