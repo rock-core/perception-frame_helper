@@ -103,14 +103,7 @@ namespace frame_helper
                     dst.bits();
                     break;
 
-                case base::samples::frame::MODE_PJPG:
-                {
-                	if(!FrameHelper::convertToRGB8((const uint8_t*)pbuffer,(uint8_t*) dst.bits(),pixel_size, width, height ,mode)){
-                            throw std::runtime_error("Conversion in QImageFrameConverter Failed\n");
-					}
-					break;
-                }
-				case base::samples::frame::MODE_UYVY:
+		case base::samples::frame::MODE_UYVY:
                 {
                     // WARNING
                     // WARNING: this code has been changed in order to account for the
