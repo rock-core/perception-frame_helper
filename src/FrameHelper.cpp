@@ -19,69 +19,64 @@ namespace frame_helper
 	calibration.setImageSize( cv::Size( -1, -1 ) );
     }
 
-	bool FrameHelper::convertToRGB8(const uint8_t *source, uint8_t *target_buffer,const int source_size, const int width, const int height, base::samples::frame::frame_mode_t mode){
-			#if defined __USE_BSD || defined __USE_XOPEN2K
-				setenv("LIBV4LCONTROL_CONTROLS", "0", 1);
-			#else
-				putenv("LIBV4LCONTROL_CONTROLS=0");
-			#endif
-		
+    bool FrameHelper::convertToRGB8(const uint8_t *source, uint8_t *target_buffer,const int source_size, const int width, const int height, base::samples::frame::frame_compressed_mode_t mode){
+        #if defined __USE_BSD || defined __USE_XOPEN2K
+            setenv("LIBV4LCONTROL_CONTROLS", "0", 1);
+        #else
+    	putenv("LIBV4LCONTROL_CONTROLS=0");
+        #endif
+        if(mode == MODE_PJPG){
+            static struct v4lconvert_data *v4lconvert_data;
+            static struct v4l2_format src_fmt;
+            static struct v4l2_format fmt;
 
+            //Initialize v4l converter
+            v4lconvert_data = v4lconvert_create(0);
 
-			if(mode == MODE_PJPG){
-					static struct v4lconvert_data *v4lconvert_data;
-					static struct v4l2_format src_fmt;
-					static struct v4l2_format fmt;
-					
-					//Initialize v4l converter
-					v4lconvert_data = v4lconvert_create(0);
-					
-					//Initializate needed conversion structures
-					src_fmt.fmt.pix.pixelformat = v4l2_fourcc('P', 'J', 'P', 'G');
-					src_fmt.fmt.pix.width = height;
-					src_fmt.fmt.pix.height = width;
-					src_fmt.fmt.pix.bytesperline = src_fmt.fmt.pix.width;
-					src_fmt.fmt.pix.sizeimage = src_fmt.fmt.pix.width * src_fmt.fmt.pix.height;
-					memcpy(&fmt, &src_fmt, sizeof fmt);
+            //Initializate needed conversion structures
+            src_fmt.fmt.pix.pixelformat = v4l2_fourcc('P', 'J', 'P', 'G');
+            src_fmt.fmt.pix.width = height;
+            src_fmt.fmt.pix.height = width;
+            src_fmt.fmt.pix.bytesperline = src_fmt.fmt.pix.width;
+            src_fmt.fmt.pix.sizeimage = src_fmt.fmt.pix.width * src_fmt.fmt.pix.height;
+            memcpy(&fmt, &src_fmt, sizeof fmt);
 
-					fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_RGB24;
-					fmt.fmt.pix.sizeimage = src_fmt.fmt.pix.width * src_fmt.fmt.pix.height * 3;
-					
-					unsigned char tmp[fmt.fmt.pix.sizeimage];
-					
-					//Do Conversion
-					//int bytes = v4lconvert_convert(v4lconvert_data,&src_fmt,&fmt,(unsigned char*)source,source_size,(unsigned char*)target_buffer,fmt.fmt.pix.sizeimage);
-					int bytes = v4lconvert_convert(v4lconvert_data,&src_fmt,&fmt,(unsigned char*)source,source_size,tmp,fmt.fmt.pix.sizeimage);
+            fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_RGB24;
+            fmt.fmt.pix.sizeimage = src_fmt.fmt.pix.width * src_fmt.fmt.pix.height * 3;
+
+            unsigned char tmp[fmt.fmt.pix.sizeimage];
+
+            //Do Conversion
+            //int bytes = v4lconvert_convert(v4lconvert_data,&src_fmt,&fmt,(unsigned char*)source,source_size,(unsigned char*)target_buffer,fmt.fmt.pix.sizeimage);
+            int bytes = v4lconvert_convert(v4lconvert_data,&src_fmt,&fmt,(unsigned char*)source,source_size,tmp,fmt.fmt.pix.sizeimage);
 
 
 
-					//Check if conversion was sucsessful
-					if(bytes < 0){
-						printf("error occoured %i, %i %s:%i\n",bytes,fmt.fmt.pix.sizeimage,__FILE__,__LINE__);
-						printf("Width: %i, height: %i, source_size: %i\n",width,height,source_size);
-						return false;
-					}
-					
-					//Image is rotated 90deg so rotate buffer
-					for(int x=0;x<width;x++){
-						for(int y=0;y<height;y++){
-							target_buffer[y*(width*3)+(x*3)+0] = tmp[x*(height*3)+(y*3)+0];
-							target_buffer[y*(width*3)+(x*3)+1] = tmp[x*(height*3)+(y*3)+1];
-							target_buffer[y*(width*3)+(x*3)+2] = tmp[x*(height*3)+(y*3)+2];
-						}
-					}
+            //Check if conversion was sucsessful
+            if(bytes < 0){
+                printf("error occoured %i, %i %s:%i\n",bytes,fmt.fmt.pix.sizeimage,__FILE__,__LINE__);
+                printf("Width: %i, height: %i, source_size: %i\n",width,height,source_size);
+            return false;
+            }
 
-					return true;	
-			}else{
-				fprintf(stderr,"Currently only PJPG Conversion is supported in FrameHelper, sorry\n");
-				return false;
-			}
-	
-	}
+            //Image is rotated 90deg so rotate buffer
+            for(int x=0;x<width;x++){
+                for(int y=0;y<height;y++){
+                    target_buffer[y*(width*3)+(x*3)+0] = tmp[x*(height*3)+(y*3)+0];
+                    target_buffer[y*(width*3)+(x*3)+1] = tmp[x*(height*3)+(y*3)+1];
+                    target_buffer[y*(width*3)+(x*3)+2] = tmp[x*(height*3)+(y*3)+2];
+                }
+            }
+            return true;	
+        }else{
+            fprintf(stderr,"Currently only PJPG Conversion is supported in FrameHelper, sorry\n");
+            return false;
+        }	
+    }
 
-	bool FrameHelper::convertToRGB8(const base::samples::frame::CompressedFrame frame, uint8_t *target_buffer){
-			return convertToRGB8(frame.image.data(),target_buffer,frame.image.size(),frame.size.width,frame.size.height, frame.frame_mode);
-	}
+    bool FrameHelper::convertToRGB8(const base::samples::frame::CompressedFrame frame, uint8_t *target_buffer){
+        return convertToRGB8(frame.image.data(),target_buffer,frame.image.size(),frame.size.width,frame.size.height, frame.frame_mode);
+    }
 
     void FrameHelper::convert(const base::samples::frame::Frame &src,
             base::samples::frame::Frame &dst,
