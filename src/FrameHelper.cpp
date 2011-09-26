@@ -74,7 +74,7 @@ namespace frame_helper
         }	
     }
 
-    bool FrameHelper::convertToRGB8(const base::samples::frame::CompressedFrame frame, uint8_t *target_buffer){
+    bool FrameHelper::convertToRGB8(const base::samples::frame::Frame frame, uint8_t *target_buffer){
         return convertToRGB8(frame.image.data(),target_buffer,frame.image.size(),frame.size.width,frame.size.height, frame.frame_mode);
     }
 

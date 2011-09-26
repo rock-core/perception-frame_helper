@@ -8,7 +8,7 @@
 #include "base/samples/frame.h"
 #include "FrameHelperTypes.h"
 #include "CalibrationCv.h"
-#include <base/samples/compressed_frame.h>
+//#include <base/samples/compressed_frame.h>
 
 //TODO 
 //at the moment some functions call copyImageIndependantAttributes
@@ -133,7 +133,7 @@ namespace frame_helper
 	     * /param target_buffer the buffer, the size must be size*width*8
 	     * /return true if conversion was sucsessful, flase otherwise
 	    */
-	    static bool convertToRGB8(const base::samples::frame::CompressedFrame, uint8_t *target_buffer);
+	    static bool convertToRGB8(const base::samples::frame::Frame, uint8_t *target_buffer);
 	    static bool convertToRGB8(const uint8_t *source, uint8_t *target_buffer,const int source_size, const int width, const int height, base::samples::frame::frame_mode_t mode);
     };
 };
