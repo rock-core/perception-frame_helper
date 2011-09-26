@@ -134,7 +134,7 @@ namespace frame_helper
 	     * /return true if conversion was sucsessful, flase otherwise
 	    */
 	    static bool convertToRGB8(const base::samples::frame::CompressedFrame, uint8_t *target_buffer);
-	    static bool convertToRGB8(const uint8_t *source, uint8_t *target_buffer,const int source_size, const int width, const int height, base::samples::frame::frame_compressed_mode_t mode);
+	    static bool convertToRGB8(const uint8_t *source, uint8_t *target_buffer,const int source_size, const int width, const int height, base::samples::frame::frame_mode_t mode);
     };
 };
 #endif // FRAMEHELPER_H

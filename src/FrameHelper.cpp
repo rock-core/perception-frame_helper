@@ -19,7 +19,7 @@ namespace frame_helper
 	calibration.setImageSize( cv::Size( -1, -1 ) );
     }
 
-    bool FrameHelper::convertToRGB8(const uint8_t *source, uint8_t *target_buffer,const int source_size, const int width, const int height, base::samples::frame::frame_compressed_mode_t mode){
+    bool FrameHelper::convertToRGB8(const uint8_t *source, uint8_t *target_buffer,const int source_size, const int width, const int height, base::samples::frame::frame_mode_t mode){
         #if defined __USE_BSD || defined __USE_XOPEN2K
             setenv("LIBV4LCONTROL_CONTROLS", "0", 1);
         #else
@@ -56,7 +56,7 @@ namespace frame_helper
             if(bytes < 0){
                 printf("error occoured %i, %i %s:%i\n",bytes,fmt.fmt.pix.sizeimage,__FILE__,__LINE__);
                 printf("Width: %i, height: %i, source_size: %i\n",width,height,source_size);
-            return false;
+                return false;
             }
 
             //Image is rotated 90deg so rotate buffer
