@@ -73,7 +73,6 @@ namespace frame_helper
                     dst = QImage(width,height,QImage::Format_RGB888);
                     ireturn = 1;
                 }
-                printf("Frame mode: %i\n",mode);
                 switch(mode)
                 {
                 case base::samples::frame::MODE_UNDEFINED:
@@ -235,13 +234,14 @@ namespace frame_helper
                         frame.pixel_size,
                         frame.getWidth(),
                         frame.getHeight(),
-                        (const char*)frame.getImageConstPtr());
+                        (const char*)frame.getImageConstPtr(),
+                        frame.image.size());
             };
 
-            int copyFrameToQImageRGB888(QImage &dst,const QString &mode,int pixel_size, int width,int height, const char* pbuffer)
+            int copyFrameToQImageRGB888(QImage &dst,const QString &mode,int pixel_size, int width,int height, const char* pbuffer, const size_t size=0)
             {
                 base::samples::frame::frame_mode_t _mode =  base::samples::frame::Frame::toFrameMode(mode.toStdString());
-                return copyFrameToQImageRGB888(dst,_mode,pixel_size,width,height,pbuffer);
+                return copyFrameToQImageRGB888(dst,_mode,pixel_size,width,height,pbuffer,size);
             };
 
         private:
