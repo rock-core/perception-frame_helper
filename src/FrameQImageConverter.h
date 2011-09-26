@@ -64,7 +64,7 @@ namespace frame_helper
             //returns 1 if the size or format of dst has been changed  otherwise 0
             //int copyFrameToQImageRGB888(QImage &dst,base::samples::frame::frame_mode_t mode,int pixel_size, int width,int height,const char* pbuffer)
             //{
-            int copyFrameToQImageRGB888(QImage &dst,base::samples::frame::frame_mode_t mode,int pixel_size, unsigned int width,unsigned int height, const char* pbuffer)
+            int copyFrameToQImageRGB888(QImage &dst,base::samples::frame::frame_mode_t mode,int pixel_size, unsigned int width,unsigned int height, const char* pbuffer, const size_t buffer_size=0)
             {
                 int ireturn = 0;
                 //check if dst has the right format
@@ -73,7 +73,7 @@ namespace frame_helper
                     dst = QImage(width,height,QImage::Format_RGB888);
                     ireturn = 1;
                 }
-
+                printf("Frame mode: %i\n",mode);
                 switch(mode)
                 {
                 case base::samples::frame::MODE_UNDEFINED:
@@ -102,7 +102,13 @@ namespace frame_helper
                     dst = QImage((const uchar*)pbuffer, width, height, width*pixel_size, QImage::Format_RGB888);
                     dst.bits();
                     break;
-
+                case base::samples::frame::MODE_PJPG:
+                {
+                   if(!FrameHelper::convertToRGB8((const uint8_t*)pbuffer,(uint8_t*) dst.bits(),buffer_size, width, height ,mode)){
+                            throw std::runtime_error("Conversion in QImageFrameConverter Failed\n");
+                   }
+                   break;
+                }
 		case base::samples::frame::MODE_UYVY:
                 {
                     // WARNING
