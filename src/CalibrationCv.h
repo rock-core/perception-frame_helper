@@ -50,6 +50,7 @@ namespace frame_helper
     {
 	StereoCalibrationCv();
 	void setCalibration( const StereoCalibration& stereoCalib );
+	StereoCalibration getCalibration() const;
 	void setImageSize( cv::Size size );
 	void initCv();
 
@@ -60,7 +61,7 @@ namespace frame_helper
 	cv::Mat R, T, Q;
 	
     protected:
-	ExtrinsicCalibration extrinsic;
+	StereoCalibration calib;
 	cv::Size imageSize;
 	bool valid;
 	bool initialized;

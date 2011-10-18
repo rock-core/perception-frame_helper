@@ -62,25 +62,29 @@ StereoCalibrationCv::StereoCalibrationCv() : valid(false), initialized(false) {}
 
 void StereoCalibrationCv::setCalibration( const StereoCalibration& stereoCalib )
 {
+    calib = stereoCalib;
     camLeft.setCalibration( stereoCalib.camLeft );
     camRight.setCalibration( stereoCalib.camRight );
 
-    this->extrinsic = stereoCalib.extrinsic;
-
     T.create(3, 1, CV_64F);
-    T.at<double>(0,0) = extrinsic.tx;
-    T.at<double>(1,0) = extrinsic.ty;
-    T.at<double>(2,0) = extrinsic.tz;
+    T.at<double>(0,0) = calib.extrinsic.tx;
+    T.at<double>(1,0) = calib.extrinsic.ty;
+    T.at<double>(2,0) = calib.extrinsic.tz;
 
     //convert from rotation vector to rotation matrix
     cv::Mat tempRot;
     tempRot.create(3, 1, CV_64F);
-    tempRot.at<double>(0,0) = extrinsic.rx;
-    tempRot.at<double>(1,0) = extrinsic.ry;
-    tempRot.at<double>(2,0) = extrinsic.rz;
+    tempRot.at<double>(0,0) = calib.extrinsic.rx;
+    tempRot.at<double>(1,0) = calib.extrinsic.ry;
+    tempRot.at<double>(2,0) = calib.extrinsic.rz;
     cv::Rodrigues(tempRot, R);
 
     valid = true;
+}
+
+StereoCalibration StereoCalibrationCv::getCalibration() const
+{
+    return calib;
 }
 
 void StereoCalibrationCv::setImageSize( cv::Size size )
