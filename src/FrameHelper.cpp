@@ -149,46 +149,15 @@ namespace frame_helper
 	calibration.setCalibration( para );
     }
 
-    /*
-    void FrameHelper::calcCalibrationMatrix(const CameraCalibration &para,int image_width,int image_height, cv::Mat &map_x, cv::Mat &map_y)
-    {
-	calibration_parameters.imageSize = cv::Size( image_width, image_height );
-	calibration_parameters.initCv();
-
-        cv::Mat intrinsic(3, 3, CV_64F);
-        intrinsic = 0.0;
-        intrinsic.at<double>(2,2) = 1.0;
-        intrinsic.at<double>(0,0) = para.fx;
-        intrinsic.at<double>(0,2) = para.cx;
-        intrinsic.at<double>(1,1) = para.fy;
-        intrinsic.at<double>(1,2) = para.cy;
-
-        cv::Mat distortion(1, 4, CV_64F);
-        distortion.at<double>(0,0) = para.d0;
-        distortion.at<double>(0,1) = para.d1;
-        distortion.at<double>(0,2) = para.d2;
-        distortion.at<double>(0,3) = para.d3;
-
-        cv::Size target_size = cv::Size(image_width, image_height);
-        cv::Mat mat;
-        cv::initUndistortRectifyMap(intrinsic,distortion,mat,intrinsic,target_size,CV_32FC1,map_x,map_y);
-    }
-    */
-
     void FrameHelper::undistort(const base::samples::frame::Frame &src,
             base::samples::frame::Frame &dst)
     {
-        //check if calibration was set;
-        if(calibration.getImageSize().width == -1)
-            throw std::runtime_error("FrameHelper::undistort: No calibration map was set!");
-
         //check if format is supported
         if(src.getFrameMode() != MODE_RGB && src.getFrameMode() != MODE_GRAYSCALE )
             throw std::runtime_error("FrameHelper::undistort: frame mode is not supported!");
 
         //check if size has changed
-        if( src.getHeight() != calibration.getImageSize().height ||
-           src.getWidth() != calibration.getImageSize().width )
+        if( calibration.getImageSize() != cv::Size( src.getWidth(), src.getHeight() ) )
         {
 	    calibration.setImageSize( cv::Size( src.getWidth(), src.getHeight() ) );
 	    calibration.initCv();
