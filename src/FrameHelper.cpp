@@ -401,9 +401,21 @@ namespace frame_helper
                 break;
 
                 //bayer --> grayscale
-            case MODE_GRAYSCALE:
-                throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode bayer to grayscale. Conversion is not implemented.");
-                break;
+	    case MODE_GRAYSCALE:
+		if(src.getDataDepth() != dst.getDataDepth())
+		    std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode bayer to rgb with different data depths. Conversion is not implemented.");
+
+		// convert to RGB24 first and then to greyscale
+		{
+		    frame_buffer.init( src.getWidth(), src.getHeight(), src.getDataDepth(), MODE_RGB );
+		    convertBayerToRGB24(src.getImageConstPtr(),frame_buffer.getImagePtr(),src.getWidth(),src.getHeight(),src.frame_mode);	
+
+		    dst.init(src.getWidth(),src.getHeight(),src.getDataDepth(),dst.getFrameMode());
+		    convertRGBToGray(frame_buffer,dst);
+
+		    dst.copyImageIndependantAttributes(src);
+		}
+		break;
 
                 //bayer --> bayer pattern  
             case MODE_BAYER:

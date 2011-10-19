@@ -109,7 +109,7 @@ namespace frame_helper
 
             //converts src to dst 
             //the mode of dst implies the conversion 
-            static void convertColor(const base::samples::frame::Frame &src,base::samples::frame::Frame &dst);
+            void convertColor(const base::samples::frame::Frame &src,base::samples::frame::Frame &dst);
 
             //converts a bayer pattern image to rgb image which has 8 bit data depth for each channel
             static void convertBayerToRGB24(const uint8_t *src, uint8_t *dst, int width, int height ,base::samples::frame::frame_mode_t mode);
