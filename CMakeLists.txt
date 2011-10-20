@@ -49,7 +49,7 @@ link_directories(${OPENCV_LIBRARY_DIRS})
 #find_package(Boost REQUIRED COMPONENTS graph filesystem)
 #include_directories(${Boost_INCLUDE_DIRS})
 
-find_package(Boost REQUIRED COMPONENTS unit_test_framework)
+find_package(Boost REQUIRED COMPONENTS unit_test_framework regex)
 if (Boost_UNIT_TEST_FRAMEWORK_FOUND)
   message(STATUS "boost/test found")
 else()

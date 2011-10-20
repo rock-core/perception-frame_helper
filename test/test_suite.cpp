@@ -11,6 +11,8 @@
 #include "../src/FrameHelper.h"
 #include <iostream>
 
+#include "../src/Calibration.h"
+
 using namespace base::samples::frame;
 using namespace frame_helper;
 
@@ -59,3 +61,7 @@ BOOST_AUTO_TEST_CASE(convert_image)
 }
 
 
+BOOST_AUTO_TEST_CASE( load_calibration_file )
+{
+    StereoCalibration calib = StereoCalibration::fromMatlabFile( "test/calib.txt" );
+}

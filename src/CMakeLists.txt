@@ -12,7 +12,7 @@
 
 ###### Define a library
 # Note: the library and executable names can't be the same
-add_library(${PROJECT_NAME} SHARED FrameHelper.cpp CalibrationCv.cpp ${EXTERNAL_LIBS} ${moc_cpp} ${ui_cpp})
+add_library(${PROJECT_NAME} SHARED FrameHelper.cpp Calibration.cpp CalibrationCv.cpp ${EXTERNAL_LIBS} ${moc_cpp} ${ui_cpp})
 # Link the defined target (either binary or library, see above) to libraries.
 # You must use ${QT_LIBRARIES} if you have enabled Qt support in the root
 # CMakeLists.txt, and ${Boost_LIBRARIES} for boost libraries

@@ -30,6 +30,12 @@ namespace frame_helper
     {
 	CameraCalibration camLeft, camRight;
 	ExtrinsicCalibration extrinsic;
+
+	/**
+	 * Creates a calibration object from the output .txt file of
+	 * the matlab calibration toolbox.
+	 */
+	static StereoCalibration fromMatlabFile( const std::string& file );
     };
 
 }
