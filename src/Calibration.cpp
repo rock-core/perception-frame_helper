@@ -44,7 +44,7 @@ StereoCalibration StereoCalibration::fromMatlabFile( const std::string& file_nam
 	  raw["kc_right"][0], raw["kc_right"][1], raw["kc_right"][2], raw["kc_right"][3] },
 	{
 	  raw["T"][0], raw["T"][1], raw["T"][2],
-	  raw["om"][0], raw["om"][1], raw["om"][0]
+	  raw["om"][0], raw["om"][1], raw["om"][2]
 	}
     };
 
