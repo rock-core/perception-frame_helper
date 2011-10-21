@@ -1,6 +1,8 @@
 #ifndef __FRAME_HELPER_CALIBRATION_H__
 #define __FRAME_HELPER_CALIBRATION_H__
 
+#include <string>
+
 namespace frame_helper
 {
     /**
