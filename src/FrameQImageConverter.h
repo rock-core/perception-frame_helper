@@ -103,9 +103,7 @@ namespace frame_helper
                     break;
                 case base::samples::frame::MODE_PJPG:
                 {
-                   if(!FrameHelper::convertToRGB8((const uint8_t*)pbuffer,(uint8_t*) dst.bits(),buffer_size, width, height ,mode)){
-                            throw std::runtime_error("Conversion in QImageFrameConverter Failed\n");
-                   }
+                   FrameHelper::convertPJPGToRGB24((const uint8_t*)pbuffer,(uint8_t*) dst.bits(),buffer_size, width, height);
                    break;
                 }
 		case base::samples::frame::MODE_UYVY:

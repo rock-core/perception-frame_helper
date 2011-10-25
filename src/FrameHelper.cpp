@@ -19,13 +19,17 @@ namespace frame_helper
 	calibration.setImageSize( cv::Size( -1, -1 ) );
     }
 
-    bool FrameHelper::convertToRGB8(const uint8_t *source, uint8_t *target_buffer,const int source_size, const int width, const int height, base::samples::frame::frame_mode_t mode){
+    //TODO
+    //use exceptions 
+    //use opencv for rotation
+    //remove static variable (not thread save!!!)
+    //move hole stuff to the end of the file (history will be lost)
+    bool FrameHelper::convertPJPGToRGB24(const uint8_t *source, uint8_t *target_buffer,const size_t source_size, const int width, const int height){
         #if defined __USE_BSD || defined __USE_XOPEN2K
             setenv("LIBV4LCONTROL_CONTROLS", "0", 1);
         #else
     	putenv("LIBV4LCONTROL_CONTROLS=0");
         #endif
-        if(mode == MODE_PJPG){
             static struct v4lconvert_data *v4lconvert_data;
             static struct v4l2_format src_fmt;
             static struct v4l2_format fmt;
@@ -55,7 +59,7 @@ namespace frame_helper
             //Check if conversion was sucsessful
             if(bytes < 0){
                 printf("error occoured %i, %i %s:%i\n",bytes,fmt.fmt.pix.sizeimage,__FILE__,__LINE__);
-                printf("Width: %i, height: %i, source_size: %i\n",width,height,source_size);
+                printf("Width: %i, height: %i, source_size: %i\n",width,height,(int)source_size);
                 return false;
             }
 
@@ -68,15 +72,8 @@ namespace frame_helper
                 }
             }
             return true;	
-        }else{
-            fprintf(stderr,"Currently only PJPG Conversion is supported in FrameHelper, sorry\n");
-            return false;
-        }	
     }
 
-    bool FrameHelper::convertToRGB8(const base::samples::frame::Frame frame, uint8_t *target_buffer){
-        return convertToRGB8(frame.image.data(),target_buffer,frame.image.size(),frame.size.width,frame.size.height, frame.frame_mode);
-    }
 
     void FrameHelper::convert(const base::samples::frame::Frame &src,
             base::samples::frame::Frame &dst,
@@ -272,6 +269,10 @@ namespace frame_helper
         case MODE_BGR:
             switch(dst.getFrameMode())
             {
+            case MODE_PJPG:
+                throw  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode bgr to pjpg. Conversion is not implemented.");
+                break;
+
                 //BGR --> RGB
             case MODE_RGB:
                 if(src.getDataDepth() != dst.getDataDepth())
@@ -338,6 +339,10 @@ namespace frame_helper
                 throw  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode rgb to bayer pattern. Conversion is not implemented.");
                 break;
 
+            case MODE_PJPG:
+                throw  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode rgb to pjpg. Conversion is not implemented.");
+                break;
+
             default:
                 throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode - mode is unknown");
             }
@@ -346,6 +351,40 @@ namespace frame_helper
             //grayscale --> ?
         case MODE_GRAYSCALE:
             throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode grayscale to ?. Conversion is not implemented.");
+            break;
+
+        case MODE_PJPG:
+            switch(dst.getFrameMode())
+            {
+                //PJPG --> RGB
+            case MODE_RGB:
+                convertPJPGToRGB24(src,dst);
+                break;
+
+            case MODE_PJPG:
+                dst.init(src,true);
+                break;
+
+                //PJPG --> grayscale
+            case MODE_GRAYSCALE:
+                throw  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode pjpg to gray pattern. Conversion not implements.");
+                break;
+
+                //PJPG --> bayer pattern
+            case MODE_BAYER:
+                throw  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode pjpg to bayer pattern. Please specify bayer pattern (RGGB,GRBG,BGGR,GBRG).");
+                break;
+
+            case MODE_BAYER_RGGB:
+            case MODE_BAYER_GRBG:
+            case MODE_BAYER_BGGR:
+            case MODE_BAYER_GBRG:
+                throw  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode pjpg to bayer pattern. Conversion is not implemented.");
+                break;
+
+            default:
+                throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode pjpg - mode is unknown");
+            }
             break;
 
             //bayer pattern --> ?  
@@ -360,6 +399,10 @@ namespace frame_helper
         case MODE_BAYER_GBRG:
             switch(dst.getFrameMode())
             {
+
+            case MODE_PJPG:
+                throw  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode bayer to pjpg. Conversion is not implemented.");
+                break;
                 //bayer --> RGB
             case MODE_RGB:
                 if(src.getDataDepth() != dst.getDataDepth())
@@ -701,6 +744,21 @@ namespace frame_helper
             blue = -blue;
             start_with_green = !start_with_green;
         }
+    }
+
+    void FrameHelper::convertPJPGToRGB24(const base::samples::frame::Frame &src,base::samples::frame::Frame &dst)
+    {
+        //check src format 
+        if(src.frame_mode != MODE_PJPG)
+            std::runtime_error("FrameHelper::convertPJPGToRGB888: Source frame mode must be MODE_PJPG.");
+
+        //check dst format 
+        if(dst.frame_mode != MODE_RGB)
+            std::runtime_error("FrameHelper::convertPJPGToRGB888: Cannot convert frame mode pjpg to rgb. Dst image must be of mode MODE_PJPG.");
+
+        dst.init(src.getWidth(),src.getHeight(),8,dst.getFrameMode(),-1);
+        convertPJPGToRGB24(src.getImageConstPtr(),dst.getImagePtr(),src.image.size(),src.getWidth(),src.getHeight());	
+        dst.copyImageIndependantAttributes(src);
     }
 
     void FrameHelper::copyMatToFrame(const cv::Mat &src, base::samples::frame::Frame &frame)

@@ -128,13 +128,10 @@ namespace frame_helper
             static void calcDiff(const base::samples::frame::Frame &src1,const base::samples::frame::Frame &src2,base::samples::frame::Frame &dst);
 			
 	    /**
-	     * /Brief conversion for Compressed Frames to RGB8 std. Format
-	     * /param frame The Compressed input frame
-	     * /param target_buffer the buffer, the size must be size*width*8
-	     * /return true if conversion was sucsessful, flase otherwise
+	     * /Brief conversion for PJPG to RGB24.
 	    */
-	    static bool convertToRGB8(const base::samples::frame::Frame, uint8_t *target_buffer);
-	    static bool convertToRGB8(const uint8_t *source, uint8_t *target_buffer,const int source_size, const int width, const int height, base::samples::frame::frame_mode_t mode);
+	    static void convertPJPGToRGB24(const base::samples::frame::Frame &src, base::samples::frame::Frame &dst);
+	    static bool convertPJPGToRGB24(const uint8_t *source, uint8_t *target_buffer,const size_t source_size, const int width, const int height);
     };
 };
 #endif // FRAMEHELPER_H
