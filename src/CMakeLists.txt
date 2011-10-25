@@ -19,11 +19,17 @@ add_library(${PROJECT_NAME} SHARED FrameHelper.cpp Calibration.cpp CalibrationCv
 #
 # If you want to use a library defined in this package, just use its name
 #
-find_library(LIBV4L2 NAMES v4l2 
-	PATHS /usr/lib /usr/lib/x86_64-linux-gnu/
-)
 
-target_link_libraries(${PROJECT_NAME} ${EXTERNAL_LIBS} ${OPENCV_LIBRARIES} ${LIBV4L2})
+
+pkg_check_modules(V4LCONVERT "libv4lconvert" REQUIRED)
+include_directories(${V4LCONVERT_INCLUDE_DIRS})
+link_directories(${V4LCONVERT_LIBRARY_DIRS})
+
+pkg_check_modules(V4L2 "libv4l2" REQUIRED)
+include_directories(${V4L2_INCLUDE_DIRS})
+link_directories(${V4L2_LIBRARY_DIRS})
+
+target_link_libraries(${PROJECT_NAME} ${EXTERNAL_LIBS} ${OPENCV_LIBRARIES} ${V4L2_LIBRARIES} ${V4LCONVERT_LIBRARIES})
 
 install(TARGETS ${PROJECT_NAME} 
     RUNTIME DESTINATION bin
