@@ -44,9 +44,15 @@ namespace frame_helper
                     int offset_x = 0, int offset_y = 0, ResizeAlgorithm algo = INTER_LINEAR, bool bundistort=false);
 
             //sets the calibration paramter for the camera
-            //parameter: 
+            //parameter. Be aware that this does not set the R and P parameter
+	    //for stereo undistort. Use the method that takes a cameraCalibrationCv
+	    //instead.
             //para              intrinsic and distortion parameters
             void setCalibrationParameter(const CameraCalibration &para);
+	    
+	    // sets the calibration parameters for the camera
+	    // which uses R and P matrices for stereo calibration as well
+            void setCalibrationParameter(const CameraCalibrationCv &para);
 
             //this is a convenience function to undistort a frame
             //call setCalibrationParameter first

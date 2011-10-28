@@ -146,6 +146,11 @@ namespace frame_helper
 	calibration.setCalibration( para );
     }
 
+    void FrameHelper::setCalibrationParameter(const CameraCalibrationCv &para)
+    {
+	calibration = para;
+    }
+
     void FrameHelper::undistort(const base::samples::frame::Frame &src,
             base::samples::frame::Frame &dst)
     {
