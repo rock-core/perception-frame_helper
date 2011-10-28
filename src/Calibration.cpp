@@ -14,6 +14,9 @@ StereoCalibration StereoCalibration::fromMatlabFile( const std::string& file_nam
     ifstream ifs( file_name.c_str() );
     string line;
 
+    // strategy is to read the input matlab file into 
+    // a map, which contains the key (matlab variable)
+    // and stores the vector as a vector of floats
     map<string, vector<double> > raw;
 
     boost::regex e( "(\\w+?) = \\[([^\\]]+?)\\]" );
@@ -34,6 +37,8 @@ StereoCalibration StereoCalibration::fromMatlabFile( const std::string& file_nam
 	}
     }
 
+    // now we can fill the calibration based on the matlab
+    // vectors we have obtained
     StereoCalibration result = 
     {
 	{ raw["fc_left"][0], raw["fc_left"][1], 
