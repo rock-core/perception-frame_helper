@@ -45,9 +45,9 @@ link_directories(${OPENCV_LIBRARY_DIRS})
 ### Uncomment if you want to use Boost. Use the first find_package stanza to
 ### search for headers only, and the second one if you need binary libraries
 #set(Boost_ADDITIONAL_VERSION 1.40 1.41)
-#find_package(Boost REQUIRED)
-#find_package(Boost REQUIRED COMPONENTS graph filesystem)
-#include_directories(${Boost_INCLUDE_DIRS})
+find_package(Boost REQUIRED)
+find_package(Boost REQUIRED COMPONENTS graph filesystem)
+include_directories(${Boost_INCLUDE_DIRS})
 
 find_package(Boost REQUIRED COMPONENTS unit_test_framework regex)
 if (Boost_UNIT_TEST_FRAMEWORK_FOUND)
