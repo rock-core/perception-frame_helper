@@ -114,7 +114,10 @@ void StereoCalibrationCv::initCv()
 	    camRight.R,
 	    camLeft.P,
 	    camRight.P,
-	    Q);
+	    Q,
+	    cv::CALIB_ZERO_DISPARITY,
+	    0 // zoom, so that only valid pixels are visible
+	    );
 
     camLeft.initCv();
     camRight.initCv();
