@@ -2,6 +2,7 @@
 #define __FRAME_HELPER_CALIBRATION_H__
 
 #include <string>
+#include <Eigen/Geometry>
 
 namespace frame_helper
 {
@@ -23,6 +24,12 @@ namespace frame_helper
     {
 	double tx, ty, tz;
 	double rx, ry, rz;
+
+	/** 
+	 * @return the transform that when applied to a point in the left 
+	 * image will give the point in the right image.
+	 */
+	Eigen::Affine3d getTransform() const;
     };
 
     /**

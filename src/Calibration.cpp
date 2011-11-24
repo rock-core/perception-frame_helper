@@ -9,6 +9,18 @@
 using namespace frame_helper;
 using namespace std;
 
+Eigen::Affine3d ExtrinsicCalibration::getTransform() const
+{
+    Eigen::Vector3d t( tx, ty, tz ), r( rx, ry, rz );
+    Eigen::Affine3d result = Eigen::Affine3d::Identity();
+    if( r.norm() > 0 )
+	result.linear() = Eigen::AngleAxisd( r.norm(), r.normalized() ).toRotationMatrix();
+
+    result.translation() = t;
+
+    return result;
+}
+
 StereoCalibration StereoCalibration::fromMatlabFile( const std::string& file_name )
 {
     ifstream ifs( file_name.c_str() );
