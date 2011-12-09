@@ -29,7 +29,11 @@ pkg_check_modules(V4L2 "libv4l2" REQUIRED)
 include_directories(${V4L2_INCLUDE_DIRS})
 link_directories(${V4L2_LIBRARY_DIRS})
 
-target_link_libraries(${PROJECT_NAME} ${EXTERNAL_LIBS} ${OPENCV_LIBRARIES} ${V4L2_LIBRARIES} ${V4LCONVERT_LIBRARIES})
+pkg_check_modules(JPEG_CONV "jpeg_conversion" REQUIRED)
+include_directories(${JPEG_CONV_INCLUDE_DIRS})
+link_directories(${JPEG_CONV_LIBRARY_DIRS})
+
+target_link_libraries(${PROJECT_NAME} ${EXTERNAL_LIBS} ${OPENCV_LIBRARIES} ${V4L2_LIBRARIES} ${V4LCONVERT_LIBRARIES} ${JPEG_CONV_LIBRARIES})
 
 install(TARGETS ${PROJECT_NAME} 
     RUNTIME DESTINATION bin

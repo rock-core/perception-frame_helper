@@ -5,6 +5,8 @@
 
 using namespace base::samples::frame;
 
+conversion::JpegConversion frame_helper::FrameHelper::jpeg_conversion;
+
 namespace frame_helper
 {
     enum ConvertMode{
@@ -278,6 +280,10 @@ namespace frame_helper
                 throw  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode bgr to pjpg. Conversion is not implemented.");
                 break;
 
+            case MODE_JPEG:
+                jpeg_conversion.compress(src, dst);
+                break;
+
                 //BGR --> RGB
             case MODE_RGB:
                 if(src.getDataDepth() != dst.getDataDepth())
@@ -348,6 +354,10 @@ namespace frame_helper
                 throw  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode rgb to pjpg. Conversion is not implemented.");
                 break;
 
+            case MODE_JPEG:
+                jpeg_conversion.compress(src, dst);
+                break;
+
             default:
                 throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode - mode is unknown");
             }
@@ -355,7 +365,16 @@ namespace frame_helper
 
             //grayscale --> ?
         case MODE_GRAYSCALE:
-            throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode grayscale to ?. Conversion is not implemented.");
+            switch(dst.getFrameMode())
+            {
+            case MODE_JPEG:
+                jpeg_conversion.compress(src, dst);
+                break;
+
+            default:
+                throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode grayscale to ?. Conversion is not implemented.");
+                break;
+            }
             break;
 
         case MODE_PJPG:
@@ -387,6 +406,10 @@ namespace frame_helper
                 throw  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode pjpg to bayer pattern. Conversion is not implemented.");
                 break;
 
+            case MODE_JPEG:
+                throw  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode pjpg to jpeg. Conversion is not implemented.");
+                break;
+
             default:
                 throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode pjpg - mode is unknown");
             }
@@ -406,6 +429,10 @@ namespace frame_helper
             {
 
             case MODE_PJPG:
+                throw  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode bayer to pjpg. Conversion is not implemented.");
+                break;
+
+            case MODE_JPEG:
                 throw  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode bayer to pjpg. Conversion is not implemented.");
                 break;
                 //bayer --> RGB
@@ -449,6 +476,49 @@ namespace frame_helper
 
             default:
                 throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode bayer to ? - mode is unknown");
+            }
+            break;
+
+        case MODE_JPEG:
+            switch(dst.getFrameMode()) 
+            {
+            //JPEG --> RGB
+            case MODE_RGB:
+                jpeg_conversion.decompress(src, base::samples::frame::MODE_RGB, dst);
+                break;
+
+            //JPEG --> BGR
+            case MODE_BGR:
+                jpeg_conversion.decompress(src, base::samples::frame::MODE_BGR, dst);
+                break;
+
+            // JPEG --> JPEG
+            case MODE_JPEG:
+                dst.init(src,true);
+                break;
+
+            //JPEG --> grayscale
+            case MODE_GRAYSCALE:
+                jpeg_conversion.decompress(src, base::samples::frame::MODE_GRAYSCALE, dst);
+                break;
+
+            case MODE_BAYER:
+                throw  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode pjpg to bayer pattern. Please specify bayer pattern (RGGB,GRBG,BGGR,GBRG).");
+                break;
+
+            case MODE_BAYER_RGGB:
+            case MODE_BAYER_GRBG:
+            case MODE_BAYER_BGGR:
+            case MODE_BAYER_GBRG:
+                throw  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode pjpg to bayer pattern. Conversion is not implemented.");
+                break;
+
+            case MODE_PJPG:
+                throw  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode jpeg to pjpg. Conversion is not implemented.");
+                break;
+
+            default:
+                throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode jpeg - mode is unknown");
             }
             break;
 
@@ -789,5 +859,12 @@ namespace frame_helper
         //this is only working if dst has the right size otherwise
         //cv is allocating new memory
         src.copyTo(dst);
+    }
+
+    void FrameHelper::convertJPEGToRGB24(uint8_t const* src, uint8_t* dst, 
+            size_t const src_size, int const width, int const height)
+    {
+        jpeg_conversion.decompress(src, src_size, width, height, 
+                base::samples::frame::MODE_RGB, dst);
     }
 }

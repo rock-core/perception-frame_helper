@@ -9,6 +9,7 @@
 #include "FrameHelperTypes.h"
 #include "CalibrationCv.h"
 //#include <base/samples/compressed_frame.h>
+#include "jpeg_conversion/jpeg_conversion.hpp"
 
 //TODO 
 //at the moment some functions call copyImageIndependantAttributes
@@ -30,6 +31,8 @@ namespace frame_helper
             //if the size of the image is not changing
             //the mapping is calculated only once 
             CameraCalibrationCv calibration;
+
+            static conversion::JpegConversion jpeg_conversion;
 
         public:
             FrameHelper();
@@ -138,6 +141,9 @@ namespace frame_helper
 	    */
 	    static void convertPJPGToRGB24(const base::samples::frame::Frame &src, base::samples::frame::Frame &dst);
 	    static bool convertPJPGToRGB24(const uint8_t *source, uint8_t *target_buffer,const size_t source_size, const int width, const int height);
+
+            // JPEG to RGB24 conversion using JpegConversion.
+            static void convertJPEGToRGB24(uint8_t const* src, uint8_t* dst, size_t const src_size, int const width, int const height);
     };
 };
 #endif // FRAMEHELPER_H

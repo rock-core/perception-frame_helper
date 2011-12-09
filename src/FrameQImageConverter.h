@@ -106,6 +106,11 @@ namespace frame_helper
                    FrameHelper::convertPJPGToRGB24((const uint8_t*)pbuffer,(uint8_t*) dst.bits(),buffer_size, width, height);
                    break;
                 }
+                case base::samples::frame::MODE_JPEG:
+                {
+                    FrameHelper::convertJPEGToRGB24((const uint8_t*)pbuffer,(uint8_t*) dst.bits(),buffer_size, width, height);
+                    break;
+                }
 		case base::samples::frame::MODE_UYVY:
                 {
                     // WARNING
