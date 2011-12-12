@@ -16,7 +16,7 @@
 <depend package="base/types" />
 <depend package="opencv" />
 <depend package="v4l" />
-<depend package="image_processing/jpeg_conversion">
+<depend package="image_processing/jpeg_conversion" />
 <!--DEPEND-ENTRY-->
   <versioncontrol type="git" url="" />
   <export>
