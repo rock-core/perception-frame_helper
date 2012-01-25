@@ -867,4 +867,16 @@ namespace frame_helper
         jpeg_conversion.decompress(src, src_size, width, height, 
                 base::samples::frame::MODE_RGB, dst);
     }
+
+    void FrameHelper::rotateBy180Degrees(const base::samples::frame::Frame &src,
+            base::samples::frame::Frame &dst)
+    {
+        dst.init(src, false);
+
+        cv::Mat cv_src = src.convertToCvMat();
+        cv::Mat cv_dst = dst.convertToCvMat();
+
+        //flips horizontally and vertically (same as rotating by 180 degrees)
+        cv::flip(cv_src, cv_dst, -1);
+    }
 }

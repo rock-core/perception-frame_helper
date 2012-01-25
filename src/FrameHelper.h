@@ -78,6 +78,11 @@ namespace frame_helper
             static void resize(const base::samples::frame::Frame &src,base::samples::frame::Frame &dst,
                     int offset_x = 0, int offset_y = 0,ResizeAlgorithm algo = INTER_LINEAR);
 
+            //rotates a frame by 180 degrees
+            //dst is inititialized as a copy of src with rotated image
+            static void rotateBy180Degrees(const base::samples::frame::Frame &src,
+                    base::samples::frame::Frame &dst);
+
 
             //calculates the distance in meters to an object seen on an image
             //parameters:
