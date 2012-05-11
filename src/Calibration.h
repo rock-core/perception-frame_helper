@@ -15,6 +15,7 @@ namespace frame_helper
     struct CameraCalibration
     {
 	double fx, fy, cx, cy, d0, d1, d2, d3;
+        int width, height;
     };
 
     /** 
