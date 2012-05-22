@@ -20,7 +20,7 @@ using namespace frame_helper;
 BOOST_AUTO_TEST_CASE(convert_image)
 {
     //load image 
-    cv::Mat image =  cv::imread("test.jpg");
+    cv::Mat image =  cv::imread("test/test.jpg");
     BOOST_CHECK(NULL != image.data);
 
     //check if convertion is working
