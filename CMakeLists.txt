@@ -25,6 +25,18 @@ pkg_check_modules(OPENCV "opencv" REQUIRED)
 include_directories(${OPENCV_INCLUDE_DIRS})
 link_directories(${OPENCV_LIBRARY_DIRS})
 
+pkg_check_modules(V4LCONVERT "libv4lconvert" REQUIRED)
+include_directories(${V4LCONVERT_INCLUDE_DIRS})
+link_directories(${V4LCONVERT_LIBRARY_DIRS})
+
+pkg_check_modules(V4L2 "libv4l2" REQUIRED)
+include_directories(${V4L2_INCLUDE_DIRS})
+link_directories(${V4L2_LIBRARY_DIRS})
+
+pkg_check_modules(JPEG_CONV "jpeg_conversion" REQUIRED)
+include_directories(${JPEG_CONV_INCLUDE_DIRS})
+link_directories(${JPEG_CONV_LIBRARY_DIRS})
+
 # command line output on, you can also use make VERBOSE=1
 # set(CMAKE_VERBOSE_MAKEFILE on)
 
