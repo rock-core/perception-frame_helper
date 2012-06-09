@@ -184,9 +184,16 @@ namespace frame_helper
             int offset_x,int offset_y,
             ResizeAlgorithm algo)
     {
-        //check if both images have the same color format
+        // check if both images have the same color format
         if(src.getFrameMode() != dst.getFrameMode())
             throw std::runtime_error("FrameHelper::resize: Cannot resize frame. Dst and src have different frame modes.");
+
+        // when compressed the image should not be resized
+        if(src.isCompressed()) 
+        {
+            throw std::runtime_error("FrameHelper::resize: Compressed frames cannot be resized\
+ yet, set 'width' and 'height' in the startup-script accordingly to the delivered camera image");
+        }
 
         cv::Mat cv_src = src.convertToCvMat();
         cv::Mat cv_dst = dst.convertToCvMat();
