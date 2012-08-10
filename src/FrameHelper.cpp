@@ -92,8 +92,12 @@ namespace frame_helper
         int mode = COPY;
         if(src.getFrameMode() != dst.getFrameMode() || src.getDataDepth() != dst.getDataDepth())
             mode += COLOR;
-        if(src.size.width != dst.size.width || src.size.height != dst.size.height)
-            mode += RESIZE;
+        // Call resize only if destination frame sizes are properly initialized
+        if(dst.size.width != 0 && dst.size.height != 0) 
+        { 
+            if(src.size.width != dst.size.width || src.size.height != dst.size.height)
+		    mode += RESIZE;
+        }
         if(bdewrap)
             mode += UNDISTORT;
 
