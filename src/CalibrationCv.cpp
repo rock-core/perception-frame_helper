@@ -119,7 +119,13 @@ void StereoCalibrationCv::initCv()
 	    0 // zoom, so that only valid pixels are visible
 	    );
 
-    camLeft.initCv();
+
+  if (isnan(Q.at<double>(3, 3)))
+  {
+     throw std::runtime_error("StereoCalibrationCv::initCv: nan in Q calculation. Check calibration parameters.");
+  }
+
+   camLeft.initCv();
     camRight.initCv();
 
     initialized = true;

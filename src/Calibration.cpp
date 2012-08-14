@@ -49,6 +49,18 @@ StereoCalibration StereoCalibration::fromMatlabFile( const std::string& file_nam
 	}
     }
 
+    // check if all fields are there
+    assert( raw["fc_left"].size() >= 2 );
+    assert( raw["cc_left"].size() >= 2 );
+    assert( raw["kc_left"].size() >= 4 );
+
+    assert( raw["fc_right"].size() >= 2 );
+    assert( raw["cc_right"].size() >= 2 );
+    assert( raw["kc_right"].size() >= 4 );
+
+    assert( raw["T"].size() >= 3 );
+    assert( raw["om"].size() >= 3 );
+
     // now we can fill the calibration based on the matlab
     // vectors we have obtained
     StereoCalibration result = 
