@@ -161,8 +161,8 @@ namespace frame_helper
                             break;
                         case 2:
                             dst = QImage(width, height, QImage::Format_RGB888);
-							for(int x=0;x<width;x++){
-								for(int y=0;y<height;y++){
+							for(unsigned int x=0;x<width;x++){
+								for(unsigned int y=0;y<height;y++){
 									uint16_t *data = (uint16_t*)pbuffer;
 									uint8_t value = data[y*width+x]/255.0;
 									dst.setPixel(x,y,qRgb(value,value,value));
