@@ -2,7 +2,7 @@
 #define __FRAME_HELPER_CALIBRATIONCV_H__
 
 #include <stddef.h>
-#include <opencv/cv.h>
+#include <opencv2/core/core.hpp>
 #include "Calibration.h"
 
 namespace frame_helper
