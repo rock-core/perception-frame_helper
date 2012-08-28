@@ -22,6 +22,49 @@ namespace frame_helper
 	calibration.setImageSize( cv::Size( -1, -1 ) );
     }
 
+    int FrameHelper::getOpenCvType(const base::samples::frame::Frame& frame)
+    {
+	int itype = 0;
+	switch (frame.getChannelCount())
+	{
+	case 1:
+	    switch (frame.getPixelSize())
+	    {
+	    case 1:
+		itype = CV_8UC1;
+		break;
+	    case 2:
+		itype = CV_16UC1;
+		break;
+	    default:
+		throw "Unknown format. Can not convert Frame "
+		"to cv::Mat.";
+	    }
+	    break;
+	case 3:
+	    switch (frame.getPixelSize())
+	    {
+	    case 3:
+		itype = CV_8UC3;
+		break;
+	    case 6:
+		itype = CV_16UC3;
+		break;
+		throw "Unknown format. Can not convert Frame "
+		"to cv::Mat.";
+	    }
+	    break;
+	    throw "Unknown format. Can not convert Frame "
+	    "to cv::Mat.";
+	}
+	return itype;
+    }
+
+    cv::Mat FrameHelper::convertToCvMat(const base::samples::frame::Frame &frame)
+    {
+	return cv::Mat(frame.size.height,frame.size.width, getOpenCvType(frame), (void *)frame.getImageConstPtr());
+    }
+    
     //TODO
     //use exceptions 
     //use opencv for rotation
@@ -102,8 +145,8 @@ namespace frame_helper
         if(bdewrap)
             mode += UNDISTORT;
 
-        const cv::Mat cv_src = src.convertToCvMat();
-        cv::Mat cv_dst = dst.convertToCvMat();
+        const cv::Mat cv_src = FrameHelper::convertToCvMat(src);
+        cv::Mat cv_dst = FrameHelper::convertToCvMat(dst);
 
         //this is needed to prevent 
         //copies 
@@ -173,8 +216,8 @@ namespace frame_helper
         }
 
         dst.init(src,false);
-        const cv::Mat cv_src = src.convertToCvMat();
-        cv::Mat cv_dst = dst.convertToCvMat();
+        const cv::Mat cv_src = FrameHelper::convertToCvMat(src);
+        cv::Mat cv_dst = FrameHelper::convertToCvMat(dst);
         remap(cv_src, cv_dst, calibration.map1, calibration.map2, cv::INTER_CUBIC);
 
         //encode the focal length and center into the frame
@@ -200,8 +243,8 @@ namespace frame_helper
  yet, set 'width' and 'height' in the startup-script accordingly to the delivered camera image");
         }
 
-        cv::Mat cv_src = src.convertToCvMat();
-        cv::Mat cv_dst = dst.convertToCvMat();
+        cv::Mat cv_src = FrameHelper::convertToCvMat(src);
+        cv::Mat cv_dst = FrameHelper::convertToCvMat(dst);
         if(offset_x != 0 || offset_y != 0)
             cv_src = cv::Mat(cv_src,cv::Rect(offset_x,offset_y,cv_dst.cols,cv_dst.rows));
 
@@ -302,8 +345,8 @@ namespace frame_helper
                     throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode rgb to bgr with different data depths. Conversion is not implemented.");
                 else
                 {
-                    const cv::Mat cv_src = src.convertToCvMat();
-                    cv::Mat cv_dst = dst.convertToCvMat();
+                    const cv::Mat cv_src = FrameHelper::convertToCvMat(src);
+                    cv::Mat cv_dst = FrameHelper::convertToCvMat(dst);
                     cv::cvtColor(cv_src,cv_dst,CV_BGR2RGB);
                 }
                 break;
@@ -311,8 +354,8 @@ namespace frame_helper
                 //BGR --> grayscale
             case MODE_GRAYSCALE:
                 {
-                    const cv::Mat cv_src = src.convertToCvMat();
-                    cv::Mat cv_dst = dst.convertToCvMat();
+                    const cv::Mat cv_src = FrameHelper::convertToCvMat(src);
+                    cv::Mat cv_dst = FrameHelper::convertToCvMat(dst);
                     cv::cvtColor(cv_src,cv_dst,CV_BGR2GRAY);
                     break;
                 }
@@ -866,7 +909,7 @@ namespace frame_helper
             throw "Unknown format. Can not convert cv:Mat to Frame.";
         }
         frame.init(src.cols,src.rows,color_depth,mode);
-        cv::Mat dst = frame.convertToCvMat();
+        cv::Mat dst = FrameHelper::convertToCvMat(frame);
 
         //this is only working if dst has the right size otherwise
         //cv is allocating new memory
@@ -885,8 +928,8 @@ namespace frame_helper
     {
         dst.init(src, false);
 
-        cv::Mat cv_src = src.convertToCvMat();
-        cv::Mat cv_dst = dst.convertToCvMat();
+        cv::Mat cv_src = FrameHelper::convertToCvMat(src);
+        cv::Mat cv_dst = FrameHelper::convertToCvMat(dst);
 
         //flips horizontally and vertically (same as rotating by 180 degrees)
         cv::flip(cv_src, cv_dst, -1);
