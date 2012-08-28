@@ -5,9 +5,8 @@
 #define BOOST_AUTO_TEST_MAIN
 #include <boost/test/auto_unit_test.hpp>
 #include <boost/test/unit_test.hpp>
-
 #include <iostream>
-#include <highgui.h>
+#include <opencv2/highgui/highgui.hpp>
 #include "../src/FrameHelper.h"
 #include <iostream>
 
@@ -27,7 +26,7 @@ BOOST_AUTO_TEST_CASE(convert_image)
     Frame frame;
     frame.init(image.cols,image.rows,8,MODE_BGR);
     memcpy(frame.getImagePtr(),image.ptr(),image.rows*image.cols * image.elemSize());
-    cv::Mat image2 = frame.convertToCvMat();
+    cv::Mat image2 = FrameHelper::convertToCvMat(frame);
     cv::namedWindow("Test",CV_WINDOW_AUTOSIZE);
     cv::imshow("Test",image2);
     cv::waitKey(1000);
@@ -35,18 +34,18 @@ BOOST_AUTO_TEST_CASE(convert_image)
     //resize image
     Frame frame2(100,100,8,MODE_BGR);
     FrameHelper::resize(frame,frame2);
-    cv::imshow("Test",frame2.convertToCvMat());
+    cv::imshow("Test",FrameHelper::convertToCvMat(frame2));
     cv::waitKey(2000);
     
     FrameHelper frame_helper;
     frame_helper.convert(frame,frame2);
-    cv::imshow("Test",frame2.convertToCvMat());
+    cv::imshow("Test",FrameHelper::convertToCvMat(frame2));
     cv::waitKey(2000);
     
     //convert color
     frame2.init(300,300,8,MODE_GRAYSCALE);
     frame_helper.convert(frame,frame2);
-    cv::imshow("Test2",frame2.convertToCvMat());
+    cv::imshow("Test2",FrameHelper::convertToCvMat(frame2));
     cv::waitKey(2000);
 
     //convert image 

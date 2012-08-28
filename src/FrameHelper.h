@@ -3,9 +3,8 @@
 
 // Workaround for GCC 4.6
 #include <stddef.h>
-#include "opencv/cv.h"
-//#include <cv.h>
 #include "base/samples/frame.h"
+#include <opencv2/core/core.hpp>
 #include "FrameHelperTypes.h"
 #include "CalibrationCv.h"
 //#include <base/samples/compressed_frame.h>
@@ -149,6 +148,10 @@ namespace frame_helper
 
             // JPEG to RGB24 conversion using JpegConversion.
             static void convertJPEGToRGB24(uint8_t const* src, uint8_t* dst, size_t const src_size, int const width, int const height);
+	    
+	    static cv::Mat convertToCvMat(const base::samples::frame::Frame &frame);
+	    
+	    static int getOpenCvType(const base::samples::frame::Frame &frame);
     };
 };
 #endif // FRAMEHELPER_H
