@@ -3,8 +3,7 @@
 
 // Workaround for GCC 4.6
 #include <stddef.h>
-#include "opencv/cv.h"
-//#include <cv.h>
+#include <opencv2/core/core.hpp>
 #include "base/samples/frame.h"
 #include "FrameHelperTypes.h"
 #include "CalibrationCv.h"

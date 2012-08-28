@@ -5,9 +5,8 @@
 #define BOOST_AUTO_TEST_MAIN
 #include <boost/test/auto_unit_test.hpp>
 #include <boost/test/unit_test.hpp>
-
 #include <iostream>
-#include <highgui.h>
+#include <opencv2/highgui/highgui.hpp>
 #include "../src/FrameHelper.h"
 #include <iostream>
 

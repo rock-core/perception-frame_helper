@@ -2,6 +2,7 @@
 #include <stdexcept>
 
 #include <libv4lconvert.h>
+#include <opencv2/imgproc/imgproc.hpp>
 
 using namespace base::samples::frame;
 
