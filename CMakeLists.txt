@@ -74,4 +74,6 @@ set(EXTERNAL_LIBS ${Boost_LIBRARIES} ${QT_LIBRARIES})
 add_subdirectory(src)
 add_subdirectory(test)
 
+add_subdirectory(bindings/ruby)
+
 
