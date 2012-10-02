@@ -3,6 +3,7 @@
 
 #include <libv4lconvert.h>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
 
 using namespace base::samples::frame;
 
@@ -972,5 +973,20 @@ namespace frame_helper
 
         //flips horizontally and vertically (same as rotating by 180 degrees)
         cv::flip(cv_src, cv_dst, -1);
+    }
+
+    void FrameHelper::saveFrame(const std::string &filename,const base::samples::frame::Frame &frame)
+    {
+        base::samples::frame::Frame temp;
+        frame_mode_t mode = frame.frame_mode == MODE_GRAYSCALE ? MODE_GRAYSCALE : MODE_BGR;
+        temp.init(frame.getWidth(),frame.getHeight(),frame.getDataDepth(),mode);
+        convertColor(frame,temp);
+        cv::imwrite(filename.c_str(),convertToCvMat(temp));
+    }
+
+    void FrameHelper::loadFrame(const std::string &filename,base::samples::frame::Frame &frame)
+    {
+        cv::Mat mat = cv::imread(filename.c_str());
+        copyMatToFrame(mat,frame);
     }
 }

@@ -152,6 +152,9 @@ namespace frame_helper
 	    static cv::Mat convertToCvMat(const base::samples::frame::Frame &frame);
 	    
 	    static int getOpenCvType(const base::samples::frame::Frame &frame);
+    
+            void saveFrame(const std::string &filename,base::samples::frame::Frame const &frame);
+            void loadFrame(const std::string &filename,base::samples::frame::Frame &frame);
     };
 };
 #endif // FRAMEHELPER_H
