@@ -23,8 +23,12 @@ namespace frame_helper
             //the buffer are used to convert one frame to an other one 
             //if src and dst attributes are not changing no memory allocation
             //is done
+            //DO NOT USE THIS VARIABLES INSIGHT any function other than convert
             base::samples::frame::Frame frame_buffer;
             base::samples::frame::Frame frame_buffer2;
+
+            //used insight convertColor
+            base::samples::frame::Frame frame_buffer3;
 
             //mapping matrix for undistort
             //if the size of the image is not changing

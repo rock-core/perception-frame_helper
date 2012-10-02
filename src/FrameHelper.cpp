@@ -65,7 +65,7 @@ namespace frame_helper
     {
 	return cv::Mat(frame.size.height,frame.size.width, getOpenCvType(frame), (void *)frame.getImageConstPtr());
     }
-    
+
     //TODO
     //use exceptions 
     //use opencv for rotation
@@ -353,7 +353,7 @@ namespace frame_helper
                 //BGR --> RGB
             case MODE_RGB:
                 if(src.getDataDepth() != dst.getDataDepth())
-                    throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode rgb to bgr with different data depths. Conversion is not implemented.");
+                    throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode bgr to rgb with different data depths. Conversion is not implemented.");
                 else
                 {
                     const cv::Mat cv_src = FrameHelper::convertToCvMat(src);
@@ -372,14 +372,14 @@ namespace frame_helper
                 }
                 //RGB --> bayer pattern  
             case MODE_BAYER:
-                throw  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode rgb to bayer pattern. Please specify bayer pattern (RGGB,GRBG,BGGR,GBRG).");
+                throw  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode bgr to bayer pattern. Please specify bayer pattern (RGGB,GRBG,BGGR,GBRG).");
                 break;
 
             case MODE_BAYER_RGGB:
             case MODE_BAYER_GRBG:
             case MODE_BAYER_BGGR:
             case MODE_BAYER_GBRG:
-                throw  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode bgrb to bayer pattern. Conversion is not implemented.");
+                throw  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode bgr to bayer pattern. Conversion is not implemented.");
                 break;
 
             default:
@@ -400,6 +400,19 @@ namespace frame_helper
                 else
                     dst.init(src,true);
                 break;
+
+                //RGB --> BGR 
+            case MODE_BGR:
+                if(src.getDataDepth() != dst.getDataDepth())
+                    throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode rgb to bgr with different data depths. Conversion is not implemented.");
+                else
+                {
+                    const cv::Mat cv_src = FrameHelper::convertToCvMat(src);
+                    cv::Mat cv_dst = FrameHelper::convertToCvMat(dst);
+                    cv::cvtColor(cv_src,cv_dst,CV_RGB2BGR);
+                }
+                break;
+
 
                 //RGB --> grayscale
             case MODE_GRAYSCALE:
@@ -528,6 +541,20 @@ namespace frame_helper
                 jpeg_conversion.compress(frame_tmp, dst); // Copies image independent attributes as well.
                 break;
             }
+                //bayer --> BGR
+            case MODE_BGR:
+                if(src.getDataDepth() != dst.getDataDepth())
+                    throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode bayer to bgr with different data depths. Conversion is not implemented.");
+                dst.init(src.getWidth(),src.getHeight(),src.getDataDepth(),MODE_RGB,-1);
+                frame_buffer3.init( src.getWidth(), src.getHeight(), src.getDataDepth(),dst.getFrameMode(),-1);
+                convertBayerToRGB24(src.getImageConstPtr(),frame_buffer3.getImagePtr(),src.getWidth(),src.getHeight(),src.frame_mode);	
+                {
+                    cv::Mat cv_dst = FrameHelper::convertToCvMat(dst);
+                    cv::cvtColor(FrameHelper::convertToCvMat(frame_buffer3),cv_dst,CV_RGB2BGR);
+                    dst.copyImageIndependantAttributes(src);
+                }
+                break;
+
                 //bayer --> RGB
             case MODE_RGB:
                 if(src.getDataDepth() != dst.getDataDepth())
@@ -942,7 +969,7 @@ namespace frame_helper
             color_depth = 8;
             break;
         case CV_8UC3:
-            mode = MODE_RGB;
+            mode = MODE_BGR;
             color_depth = 8;
             break;
         default:
