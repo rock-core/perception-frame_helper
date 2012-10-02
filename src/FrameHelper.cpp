@@ -565,20 +565,20 @@ namespace frame_helper
                 break;
 
                 //bayer --> grayscale
-	        case MODE_GRAYSCALE:
-		        if(src.getDataDepth() != dst.getDataDepth())
-		            throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode bayer to grayscale with different data depths. Conversion is not implemented.");
+            case MODE_GRAYSCALE:
+                if(src.getDataDepth() != dst.getDataDepth())
+                    throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode bayer to grayscale with different data depths. Conversion is not implemented.");
 
-		        // convert to RGB24 first and then to greyscale    
-	            frame_buffer.init( src.getWidth(), src.getHeight(), src.getDataDepth(), MODE_RGB );
-	            convertBayerToRGB24(src.getImageConstPtr(),frame_buffer.getImagePtr(),src.getWidth(),src.getHeight(),src.frame_mode);	
+                // convert to RGB24 first and then to greyscale    
+                frame_buffer3.init( src.getWidth(), src.getHeight(), src.getDataDepth(), MODE_RGB );
+                convertBayerToRGB24(src.getImageConstPtr(),frame_buffer3.getImagePtr(),src.getWidth(),src.getHeight(),src.frame_mode);	
 
-	            dst.init(src.getWidth(),src.getHeight(),src.getDataDepth(),dst.getFrameMode());
-	            convertRGBToGray(frame_buffer,dst);
+                dst.init(src.getWidth(),src.getHeight(),src.getDataDepth(),dst.getFrameMode());
+                convertRGBToGray(frame_buffer3,dst);
 
-	            dst.copyImageIndependantAttributes(src);
-		        
-		        break;
+                dst.copyImageIndependantAttributes(src);
+
+                break;
 
                 //bayer --> bayer pattern  
             case MODE_BAYER:
