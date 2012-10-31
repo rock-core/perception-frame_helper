@@ -1,4 +1,4 @@
-include($ENV{ROCK_CMAKE_MACROS}/Rock.cmake)
+find_package(Rock)
 include(RockRuby)
 
 find_package(Gem COMPONENTS rice)
