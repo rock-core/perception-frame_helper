@@ -10,5 +10,8 @@
 <depend package="opencv" />
 <depend package="v4l" />
 <depend package="image_processing/jpeg_conversion" />
+
+<depend package="typelib" optional="1" />
+<depend package="tools/orocos.rb" optional="1" />
 <tags>stable</tags>
 </package>
