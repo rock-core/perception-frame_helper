@@ -8,7 +8,6 @@
 #include "FrameHelperTypes.h"
 #include "CalibrationCv.h"
 //#include <base/samples/compressed_frame.h>
-#include "jpeg_conversion/jpeg_conversion.hpp"
 
 //TODO 
 //at the moment some functions call copyImageIndependantAttributes
@@ -34,8 +33,6 @@ namespace frame_helper
             //if the size of the image is not changing
             //the mapping is calculated only once 
             CameraCalibrationCv calibration;
-
-            static conversion::JpegConversion jpeg_conversion;
 
         public:
             FrameHelper();

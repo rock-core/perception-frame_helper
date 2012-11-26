@@ -4,10 +4,9 @@
 #include <libv4lconvert.h>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <jpeg_conversion/jpeg_conversion.hpp>
 
 using namespace base::samples::frame;
-
-conversion::JpegConversion frame_helper::FrameHelper::jpeg_conversion;
 
 namespace frame_helper
 {
@@ -347,8 +346,11 @@ namespace frame_helper
 
                 //BGR --> JPEG
             case MODE_JPEG:
+            {
+                conversion::JpegConversion jpeg_conversion;
                 jpeg_conversion.compress(src, dst);
                 break;
+            }
 
                 //BGR --> RGB
             case MODE_RGB:
@@ -438,8 +440,11 @@ namespace frame_helper
 
                 //RGB --> JPEG
             case MODE_JPEG:
+            {
+                conversion::JpegConversion jpeg_conversion;
                 jpeg_conversion.compress(src, dst);
                 break;
+            }
 
             default:
                 throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode - mode is unknown");
@@ -462,8 +467,11 @@ namespace frame_helper
 
                 //GRAYSCALE --> JPEG
             case MODE_JPEG:
+            {
+                conversion::JpegConversion jpeg_conversion;
                 jpeg_conversion.compress(src, dst);
                 break;
+            }
 
             default:
                 throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode grayscale to ?. Conversion is not implemented.");
@@ -475,6 +483,7 @@ namespace frame_helper
 
 
         case MODE_PJPG:
+        {
             switch(dst.getFrameMode())
             {
                 //PJPG --> RGB
@@ -487,8 +496,6 @@ namespace frame_helper
                 dst.init(src,true);
                 break;
 
-                //PJPG --> grayscale
-            case MODE_GRAYSCALE:
                 throw  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode pjpg to gray pattern. Conversion not implements.");
                 break;
 
@@ -504,10 +511,13 @@ namespace frame_helper
                 throw  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode pjpg to bayer pattern. Conversion is not implemented.");
                 break;
 
-                //PJPG --> JPEG
-            case MODE_JPEG: {
+            //PJPG --> JPEG
+            case MODE_JPEG: 
+            {
                 base::samples::frame::Frame frame_tmp;
                 convertPJPGToRGB24(src, frame_tmp);
+
+                conversion::JpegConversion jpeg_conversion;
                 jpeg_conversion.compress(frame_tmp, dst); // Copies image independent attributes as well.
                 break;
             }
@@ -516,12 +526,10 @@ namespace frame_helper
             }
             break;
 
-
-
-
         case MODE_BAYER:
             throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode bayer to ?. Please specify bayer pattern (RGGB,GRBG,BGGR,GBRG).");
             break;
+        }
 
         case MODE_BAYER_RGGB:
         case MODE_BAYER_GRBG:
@@ -534,10 +542,13 @@ namespace frame_helper
                 throw  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode bayer to pjpg. Conversion is not implemented.");
                 break;
 
-            case MODE_JPEG: {
+            case MODE_JPEG: 
+            {
                 base::samples::frame::Frame frame_tmp(src.getWidth(), src.getHeight(), src.getDataDepth(), base::samples::frame::MODE_RGB, -1);
                 convertBayerToRGB24(src.getImageConstPtr(), frame_tmp.getImagePtr(), src.getWidth(), src.getHeight(), src.getFrameMode());
                 frame_tmp.copyImageIndependantAttributes(src);
+
+                conversion::JpegConversion jpeg_conversion;
                 jpeg_conversion.compress(frame_tmp, dst); // Copies image independent attributes as well.
                 break;
             }
@@ -602,12 +613,16 @@ namespace frame_helper
 
 
         case MODE_JPEG:
+        {
+            conversion::JpegConversion jpeg_conversion;
             switch(dst.getFrameMode()) 
             {
             //JPEG --> RGB
             case MODE_RGB:
+            {
                 jpeg_conversion.decompress(src, base::samples::frame::MODE_RGB, dst);
                 break;
+            }
 
             //JPEG --> BGR
             case MODE_BGR:
@@ -643,10 +658,10 @@ namespace frame_helper
                 throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode jpeg - mode is unknown");
             }
             break;
-
+        } // end case MODE_JPEG
         default:
             throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode ?- mode is unknown");
-        }
+        }  // end switch(src.getFrameMode())
     }
 
     //only a data depth of 1 Byte is supported
@@ -986,6 +1001,7 @@ namespace frame_helper
     void FrameHelper::convertJPEGToRGB24(uint8_t const* src, uint8_t* dst, 
             size_t const src_size, int const width, int const height)
     {
+        conversion::JpegConversion jpeg_conversion;
         jpeg_conversion.decompress(src, src_size, width, height, 
                 base::samples::frame::MODE_RGB, dst);
     }
