@@ -19,7 +19,7 @@
 # If you want to use a library defined in this package, just use its name
 #
 
-add_library(${PROJECT_NAME} SHARED FrameHelper.cpp Calibration.cpp CalibrationCv.cpp ${moc_cpp} ${ui_cpp})
+add_library(${PROJECT_NAME} SHARED BrightnessIndicator.cpp ExposureController.cpp FrameHelper.cpp Calibration.cpp CalibrationCv.cpp ${moc_cpp} ${ui_cpp})
 target_link_libraries(${PROJECT_NAME} ${EXTERNAL_LIBS} ${OPENCV_LIBRARIES} ${V4L2_LIBRARIES} ${V4LCONVERT_LIBRARIES} ${JPEG_CONV_LIBRARIES})
 
 install(TARGETS ${PROJECT_NAME} 
