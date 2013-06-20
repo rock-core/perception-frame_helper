@@ -1,22 +1,16 @@
-find_package(Rock)
-include(RockRuby)
+add_subdirectory(src)
 
-find_package(Gem COMPONENTS rice)
-pkg_check_modules(TYPELIB "rtt_typelib-${OROCOS_TARGET}")
-pkg_check_modules(TYPELIBRUBY "typelib_ruby")
+FIND_PACKAGE(Ruby)
+IF(NOT RUBY_INCLUDE_PATH)
+    MESSAGE(STATUS "Ruby library not found. Cannot install Ruby extensions")
+ELSEIF(NOT RUBY_EXTENSIONS_AVAILABLE)
+    STRING(REGEX REPLACE ".*lib(32|64)?/?" "lib/" RUBY_LIBRARY_INSTALL_DIR ${RUBY_RUBY_LIB_PATH})
 
-if (TYPELIB_FOUND AND TYPELIBRUBY_FOUND AND GEM_FOUND)
-    rock_ruby_rice_extension(frame_helper_ruby SHARED
-        SOURCES FrameHelperRice.cpp
-        DEPS_PKGCONFIG rtt_typelib-${OROCOS_TARGET} typelib_ruby)
-    target_link_libraries(frame_helper_ruby frame_helper ${GEM_LIBRARIES})
-else()
-    if (NOT TYPELIB_FOUND)
-        message(STATUS "FrameHelper: Cannot find typelib => disable ruby binding")
-    elseif (NOT TYPELIBRUBY_FOUND)
-        message(STATUS "FrameHelper: Cannot typelib's ruby bindings => disable ruby binding")
-    elseif (NOT GEM_FOUND)
-        message(STATUS "cannot find the rice gem, the vizkit-ruby bridge is disabled")
-    endif()
-endif()
+    FIND_PROGRAM(RDOC_EXECUTABLE NAMES rdoc1.9 rdoc1.8 rdoc)
+    FIND_PROGRAM(YARD_EXECUTABLE NAMES yard)
 
+    INSTALL(FILES lib/frame_helper.rb
+        DESTINATION ${RUBY_LIBRARY_INSTALL_DIR})
+    INSTALL(DIRECTORY lib/frame_helper
+        DESTINATION ${RUBY_LIBRARY_INSTALL_DIR})
+ENDIF(NOT RUBY_INCLUDE_PATH)

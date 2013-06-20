@@ -125,7 +125,7 @@ namespace frame_helper
             base::samples::frame::Frame &dst,
             int offset_x,
             int offset_y,
-            ResizeAlgorithm algo,
+            int algo,
             bool bdewrap)
     {
         //set bayer pattern if not specified
@@ -231,7 +231,7 @@ namespace frame_helper
     void FrameHelper::resize(const base::samples::frame::Frame &src,
             base::samples::frame::Frame &dst,
             int offset_x,int offset_y,
-            ResizeAlgorithm algo)
+            int algo)
     {
         // check if both images have the same color format
         if(src.getFrameMode() != dst.getFrameMode())
@@ -360,7 +360,7 @@ namespace frame_helper
                 {
                     const cv::Mat cv_src = FrameHelper::convertToCvMat(src);
                     cv::Mat cv_dst = FrameHelper::convertToCvMat(dst);
-                    cv::cvtColor(cv_src,cv_dst,CV_BGR2RGB);
+                    cv::cvtColor(cv_src,cv_dst,cv::COLOR_BGR2RGB);
                 }
                 break;
 
@@ -369,7 +369,7 @@ namespace frame_helper
                 {
                     const cv::Mat cv_src = FrameHelper::convertToCvMat(src);
                     cv::Mat cv_dst = FrameHelper::convertToCvMat(dst);
-                    cv::cvtColor(cv_src,cv_dst,CV_BGR2GRAY);
+                    cv::cvtColor(cv_src,cv_dst,cv::COLOR_BGR2GRAY);
                     break;
                 }
                 //RGB --> bayer pattern  
@@ -411,7 +411,7 @@ namespace frame_helper
                 {
                     const cv::Mat cv_src = FrameHelper::convertToCvMat(src);
                     cv::Mat cv_dst = FrameHelper::convertToCvMat(dst);
-                    cv::cvtColor(cv_src,cv_dst,CV_RGB2BGR);
+                    cv::cvtColor(cv_src,cv_dst,cv::COLOR_RGB2BGR);
                 }
                 break;
 
@@ -561,7 +561,7 @@ namespace frame_helper
                 convertBayerToRGB24(src.getImageConstPtr(),frame_buffer3.getImagePtr(),src.getWidth(),src.getHeight(),src.frame_mode);	
                 {
                     cv::Mat cv_dst = FrameHelper::convertToCvMat(dst);
-                    cv::cvtColor(FrameHelper::convertToCvMat(frame_buffer3),cv_dst,CV_RGB2BGR);
+                    cv::cvtColor(FrameHelper::convertToCvMat(frame_buffer3),cv_dst,cv::COLOR_RGB2BGR);
                     dst.copyImageIndependantAttributes(src);
                 }
                 break;
@@ -1018,7 +1018,7 @@ namespace frame_helper
         cv::flip(cv_src, cv_dst, -1);
     }
 
-    void FrameHelper::saveFrame(const std::string &filename,const base::samples::frame::Frame &frame)
+    void FrameHelper::saveFrame(const cv::String &filename,const base::samples::frame::Frame &frame)
     {
         base::samples::frame::Frame temp;
         frame_mode_t mode = frame.frame_mode == MODE_GRAYSCALE ? MODE_GRAYSCALE : MODE_BGR;
@@ -1027,7 +1027,7 @@ namespace frame_helper
         cv::imwrite(filename.c_str(),convertToCvMat(temp));
     }
 
-    void FrameHelper::loadFrame(const std::string &filename,base::samples::frame::Frame &frame)
+    void FrameHelper::loadFrame(const cv::String &filename,base::samples::frame::Frame &frame)
     {
         cv::Mat mat = cv::imread(filename.c_str());
         copyMatToFrame(mat,frame);
