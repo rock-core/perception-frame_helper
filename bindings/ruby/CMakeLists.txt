@@ -1,3 +1,6 @@
+if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/src)
+    execute_process(COMMAND ruby ${CMAKE_CURRENT_SOURCE_DIR}/generate.rb)
+ENDIF()
 add_subdirectory(src)
 
 FIND_PACKAGE(Ruby)
