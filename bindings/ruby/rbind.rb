@@ -13,4 +13,4 @@ rbind.parse_extern
 rbind.use_namespace rbind.cv
 rbind.parse_headers
 rbind.libs << "frame_helper"
-rbind.generate(File.join(File.dirname(__FILE__),"src"),File.join(File.dirname(__FILE__),"lib","frame_helper"))
+rbind.generate(File.join(File.dirname(__FILE__),"src"),File.join(File.dirname(__FILE__),"lib","ruby","frame_helper"))

@@ -1,1 +1,9 @@
 build/
+bindings/ruby/lib/lib
+bindings/ruby/lib/ruby/frame_helper/frame_helper.rb
+bindings/ruby/lib/ruby/frame_helper/frame_helper_types.rb
+bindings/ruby/lib/include
+bindings/ruby/src/*.cc
+bindings/ruby/src/*.hpp
+bindings/ruby/src/*.h
+bindings/ruby/src/*.rbind
