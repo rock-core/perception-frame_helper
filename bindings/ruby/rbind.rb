@@ -2,8 +2,8 @@ require 'rbind'
 
 rbind = Rbind::Rbind.new("FrameHelper")
 rbind.generator_ruby.compact_namespace = true
-rbind.pkg_config << "base-types"
-rbind.gems << "ropencv"
+rbind.pkg_config << "base-types" << "rbind_opencv"
+#rbind.gems << "ropencv"
 rbind.includes = [File.absolute_path(File.join(File.dirname(__FILE__),"..","..","src","FrameHelperTypes.h")),
                   File.absolute_path(File.join(File.dirname(__FILE__),"..","..","src","FrameHelper.h"))]
 
