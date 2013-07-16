@@ -7,6 +7,3 @@ rock_init(frame_helper 1.0)
 rock_standard_layout()
 set(PROJECT_DESCRIPTION "Library for manipulating frames")
 
-add_subdirectory(bindings/ruby)
-
-
