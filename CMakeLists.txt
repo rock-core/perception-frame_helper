@@ -58,7 +58,7 @@ link_directories(${JPEG_CONV_LIBRARY_DIRS})
 ### search for headers only, and the second one if you need binary libraries
 #set(Boost_ADDITIONAL_VERSION 1.40 1.41)
 find_package(Boost REQUIRED)
-find_package(Boost REQUIRED COMPONENTS graph filesystem)
+find_package(Boost REQUIRED COMPONENTS filesystem)
 include_directories(${Boost_INCLUDE_DIRS})
 
 find_package(Boost REQUIRED COMPONENTS unit_test_framework regex)
