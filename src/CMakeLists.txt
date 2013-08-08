@@ -7,6 +7,6 @@ rock_library(${PROJECT_NAME}
                         FrameHelper.h
                         FrameHelperTypes.h
                         FrameQImageConverter.h
-                 DEPS_PKGCONFIG base-types opencv libv4lconvert libv4l2 jpeg_conversion
+                        DEPS_PKGCONFIG base-types libv4lconvert libv4l2 jpeg_conversion opencv
                  DEPS_CMAKE Boost
                  )
