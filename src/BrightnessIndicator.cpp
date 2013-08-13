@@ -70,20 +70,3 @@ void WeightedBoxesBrightnessIndicator::setWeightedRegions(std::vector<WeightedRe
 {
 	weightedRegions = _weightedRegions;
 }
-int PercentageOverExposedIndicator::getBrightness(Mat image) {
-	int overExposedPixels = 0;
-	for(int x=0; x < image.cols; ++x) {
-		for(int y=0; y < image.rows; ++y) {
-			for(int channel = 0; channel < image.channels(); ++channel) {
-				int value = image.data[
-					 y * image.cols * image.channels() +
-					 x * image.channels() +
-					 channel];
-				if(value > 250) {
-					overExposedPixels += 1;
-				}
-			}
-		}
-	}
-	return overExposedPixels * 100 / (image.cols * image.rows * image.channels());
-}

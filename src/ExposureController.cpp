@@ -3,31 +3,26 @@
 #include <iostream>
 #include <cmath>
 
-LinearExposureController::LinearExposureController(int targetBrightness, int factor, int tolerance) {
-	this->targetBrightness = targetBrightness;
-	this->factor = factor;
-	this->tolerance = tolerance;
-}
-void LinearExposureController::setExposureBounds(int minExposure, int maxExposure) {
-	this->upperExposureBound = maxExposure;
-	this->lowerExposureBound = minExposure;
-}
-void LinearExposureController::setCurrentExposure(int exposure) {
-	this->currentExposure = exposure;
-}
-int LinearExposureController::getNewExposure(int currentBrightness) {
-	if((currentBrightness < (targetBrightness - tolerance)) ||
-			(currentBrightness > (targetBrightness + tolerance))) {
-		int diff = targetBrightness-currentBrightness;
-		int exposure_correction = diff * factor;
-		//std::cout << "Befor pow:" << exposure_correction << std::endl;
-		//exposure_correction = pow(exposure_correction * 1.0, 1.1);
-		//std::cout << "After pow:" << exposure_correction << std::endl;
-		currentExposure += exposure_correction;
+using namespace std;
 
-		currentExposure = std::min(upperExposureBound, currentExposure);
-		currentExposure = std::max(lowerExposureBound, currentExposure);
+int ExposureController::calcNewValue(int measuredValue, int target) {
+	if(measuredValue == 0) {
+		return lastExp + 1000;
 	}
+	if(abs(measuredValue - target) > tolerance) { 
+		double mx = lastExp * 1.0 / measuredValue;
+		cout << "MX:" << mx << endl;
+		return mx * target;
+	} else {
+		return lastExp;
+	}
+}	
 
-	return currentExposure; 
+int ExposureController::update(int measuredValue, int target) {
+	int value = calcNewValue(measuredValue, target);
+	value = std::min(max, value);
+	value = std::max(min, value);
+	lastExp = value;
+
+	return value;
 }
