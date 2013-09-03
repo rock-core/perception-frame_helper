@@ -360,7 +360,7 @@ namespace frame_helper
                 {
                     const cv::Mat cv_src = FrameHelper::convertToCvMat(src);
                     cv::Mat cv_dst = FrameHelper::convertToCvMat(dst);
-                    cv::cvtColor(cv_src,cv_dst,CV_BGR2RGB);
+                    cv::cvtColor(cv_src,cv_dst,cv::COLOR_BGR2RGB);
                 }
                 break;
 
@@ -369,7 +369,7 @@ namespace frame_helper
                 {
                     const cv::Mat cv_src = FrameHelper::convertToCvMat(src);
                     cv::Mat cv_dst = FrameHelper::convertToCvMat(dst);
-                    cv::cvtColor(cv_src,cv_dst,CV_BGR2GRAY);
+                    cv::cvtColor(cv_src,cv_dst,cv::COLOR_BGR2GRAY);
                     break;
                 }
                 //RGB --> bayer pattern  
@@ -411,7 +411,7 @@ namespace frame_helper
                 {
                     const cv::Mat cv_src = FrameHelper::convertToCvMat(src);
                     cv::Mat cv_dst = FrameHelper::convertToCvMat(dst);
-                    cv::cvtColor(cv_src,cv_dst,CV_RGB2BGR);
+                    cv::cvtColor(cv_src,cv_dst,cv::COLOR_RGB2BGR);
                 }
                 break;
 
@@ -561,7 +561,7 @@ namespace frame_helper
                 convertBayerToRGB24(src.getImageConstPtr(),frame_buffer3.getImagePtr(),src.getWidth(),src.getHeight(),src.frame_mode);	
                 {
                     cv::Mat cv_dst = FrameHelper::convertToCvMat(dst);
-                    cv::cvtColor(FrameHelper::convertToCvMat(frame_buffer3),cv_dst,CV_RGB2BGR);
+                    cv::cvtColor(FrameHelper::convertToCvMat(frame_buffer3),cv_dst,cv::COLOR_RGB2BGR);
                     dst.copyImageIndependantAttributes(src);
                 }
                 break;

@@ -28,7 +28,7 @@ using namespace frame_helper;
     frame.init(image.cols,image.rows,8,MODE_BGR);
     memcpy(frame.getImagePtr(),image.ptr(),image.rows*image.cols * image.elemSize());
     cv::Mat image2 = FrameHelper::convertToCvMat(frame);
-    cv::namedWindow("Test",CV_WINDOW_AUTOSIZE);
+    cv::namedWindow("Test",cv::WINDOW_AUTOSIZE);
     cv::imshow("Test",image2);
     cv::waitKey(1000);
 
