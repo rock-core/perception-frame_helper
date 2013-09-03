@@ -9,6 +9,7 @@ rock_library(${PROJECT_NAME}
                        FrameQImageConverter.h
                        BrightnessIndicator.h
                        ExposureController.h
+                       AutoWhiteBalance.h
 
                 DEPS_PKGCONFIG base-types opencv libv4lconvert libv4l2 jpeg_conversion
                 DEPS_CMAKE Boost
