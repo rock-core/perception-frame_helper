@@ -4,6 +4,7 @@
 cmake_minimum_required(VERSION 2.6)
 
 project(frame_helper)
+find_package(Rock)
 set(PROJECT_VERSION 1.0)
 set(PROJECT_DESCRIPTION "Library for manipulating frames")
 
@@ -21,7 +22,7 @@ pkg_check_modules(BASE "base-types" )
 include_directories(${BASE_INCLUDE_DIRS})
 link_directories(${BASE_LIBDIR})
 
-pkg_check_modules(OPENCV "opencv" REQUIRED)
+rock_find_pkgconfig(OPENCV REQUIRED opencv)
 include_directories(${OPENCV_INCLUDE_DIRS})
 link_directories(${OPENCV_LIBRARY_DIRS})
 
