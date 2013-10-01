@@ -3,6 +3,7 @@
 
 #include <string>
 #include <Eigen/Geometry>
+#include <base/samples/Frame.hpp>
 
 namespace frame_helper
 {
@@ -28,6 +29,7 @@ namespace frame_helper
 
 	double fx, fy, cx, cy, d0, d1, d2, d3;
         int width, height;
+
         /**
          * copy to another CamCalibration structure 
          */
@@ -35,6 +37,44 @@ namespace frame_helper
         {
 	    target = *this;
         }
+
+	/**
+	 * @brief create a calibration struct based on the information embedded
+	 *        in the frame
+	 *
+	 * this function will throw if the calibration parameters are not embedded
+	 * as attributes in the frame
+	 */
+	static CameraCalibration fromFrame( const base::samples::frame::Frame& frame )
+	{
+	    CameraCalibration c;
+	    c.fx = frame.getAttribute<double>("fx");
+	    c.fy = frame.getAttribute<double>("fy");
+	    c.cx = frame.getAttribute<double>("cx");
+	    c.cy = frame.getAttribute<double>("cy");
+	    c.width = frame.size.width;
+	    c.height = frame.size.height;
+	    return c;
+	}
+
+	/**
+	 * @brief write the calibration into the attributes of the frame
+	 *
+	 * will throw if the size of the calibration does not match the size
+	 * of the frame
+	 */
+	void toFrame( base::samples::frame::Frame& frame )
+	{
+	    frame.setAttribute<double>("fx", fx);
+	    frame.setAttribute<double>("fy", fy);
+	    frame.setAttribute<double>("cx", cx);
+	    frame.setAttribute<double>("cy", cy);
+
+	    if( frame.size.width != width )
+		throw std::runtime_error("frame width does not match calibration");
+	    if( frame.size.height != height )
+		throw std::runtime_error("frame height does not match calibration");
+	}
     };
 
     /** 
