@@ -21,16 +21,7 @@ namespace frame_helper
          */
         void copyTo(CameraCalibration &target) const
         {
-          target.fx = fx;
-          target.fy = fy;
-          target.cx = cx;
-          target.cy = cy;
-          target.d0 = d0;
-          target.d1 = d1;
-          target.d2 = d2;
-          target.d3 = d3;
-          target.width = width;
-          target.height = height;
+	    target = *this;
         }
     };
 
