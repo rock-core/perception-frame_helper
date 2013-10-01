@@ -4,6 +4,7 @@
 #include <string>
 #include <Eigen/Geometry>
 #include <base/samples/Frame.hpp>
+#include <base/Float.hpp>
 
 namespace frame_helper
 {
@@ -16,8 +17,8 @@ namespace frame_helper
     struct CameraCalibration
     {
 	CameraCalibration()
-	    : fx(.0f), fy(.0f), cx(.0f), cy(.0f), 
-	    d0(.0f), d1(.0f), d2(.0f), d3(.0f),
+	    : fx(base::unset<float>()), fy(base::unset<float>()), cx(base::unset<float>()), cy(base::unset<float>()), 
+	    d0(base::unset<float>()), d1(base::unset<float>()), d2(base::unset<float>()), d3(base::unset<float>()),
 	    width(-1), height(-1)
 	{}
 
@@ -29,6 +30,24 @@ namespace frame_helper
 
 	double fx, fy, cx, cy, d0, d1, d2, d3;
         int width, height;
+
+	/**
+	 * @return true if the calibration values are set
+	 */
+	bool isValid() const
+	{
+	    return 
+		width > 0 &&
+		height > 0 &&
+		!base::isUnset<float>(fx) &&	
+		!base::isUnset<float>(fy) &&	
+		!base::isUnset<float>(cx) &&	
+		!base::isUnset<float>(cy) &&	
+		!base::isUnset<float>(d0) &&	
+		!base::isUnset<float>(d1) &&	
+		!base::isUnset<float>(d2) &&	
+		!base::isUnset<float>(d3);
+	}
 
         /**
          * copy to another CamCalibration structure 
