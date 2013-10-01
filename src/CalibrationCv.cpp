@@ -25,6 +25,8 @@ void CameraCalibrationCv::setCalibration( const CameraCalibration& calib )
     distCoeffs.at<double>(0,2) = calib.d2;
     distCoeffs.at<double>(0,3) = calib.d3;
 
+    imageSize = cv::Size( calib.width, calib.height );
+
     valid = true;
 }
 
