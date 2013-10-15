@@ -65,12 +65,12 @@ StereoCalibration StereoCalibration::fromMatlabFile( const std::string& file_nam
     // vectors we have obtained
     StereoCalibration result = 
     {
-	{ raw["fc_left"][0], raw["fc_left"][1], 
+	CameraCalibration( raw["fc_left"][0], raw["fc_left"][1], 
 	  raw["cc_left"][0], raw["cc_left"][1], 
-	  raw["kc_left"][0], raw["kc_left"][1], raw["kc_left"][2], raw["kc_left"][3] },
-	{ raw["fc_right"][0], raw["fc_right"][1], 
+	  raw["kc_left"][0], raw["kc_left"][1], raw["kc_left"][2], raw["kc_left"][3] ),
+	CameraCalibration( raw["fc_right"][0], raw["fc_right"][1], 
 	  raw["cc_right"][0], raw["cc_right"][1], 
-	  raw["kc_right"][0], raw["kc_right"][1], raw["kc_right"][2], raw["kc_right"][3] },
+	  raw["kc_right"][0], raw["kc_right"][1], raw["kc_right"][2], raw["kc_right"][3] ),
 	{
 	  raw["T"][0], raw["T"][1], raw["T"][2],
 	  raw["om"][0], raw["om"][1], raw["om"][2]

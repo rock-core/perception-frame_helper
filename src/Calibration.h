@@ -3,6 +3,8 @@
 
 #include <string>
 #include <Eigen/Geometry>
+#include <base/samples/Frame.hpp>
+#include <base/Float.hpp>
 
 namespace frame_helper
 {
@@ -14,24 +16,84 @@ namespace frame_helper
      */
     struct CameraCalibration
     {
+	CameraCalibration()
+	    : fx(base::unset<float>()), fy(base::unset<float>()), cx(base::unset<float>()), cy(base::unset<float>()), 
+	    d0(base::unset<float>()), d1(base::unset<float>()), d2(base::unset<float>()), d3(base::unset<float>()),
+	    width(-1), height(-1)
+	{}
+
+	CameraCalibration( double fx, double fy, double cx, double cy, double d0, double d1, double d2, double d3 )
+	    : fx(fx), fy(fy), cx(cx), cy(cy), 
+	    d0(d0), d1(d1), d2(d2), d3(d3),
+	    width(-1), height(-1)
+	{}
+
 	double fx, fy, cx, cy, d0, d1, d2, d3;
         int width, height;
+
+	/**
+	 * @return true if the calibration values are set
+	 */
+	bool isValid() const
+	{
+	    return 
+		width > 0 &&
+		height > 0 &&
+		!base::isUnset<float>(fx) &&	
+		!base::isUnset<float>(fy) &&	
+		!base::isUnset<float>(cx) &&	
+		!base::isUnset<float>(cy) &&	
+		!base::isUnset<float>(d0) &&	
+		!base::isUnset<float>(d1) &&	
+		!base::isUnset<float>(d2) &&	
+		!base::isUnset<float>(d3);
+	}
+
         /**
          * copy to another CamCalibration structure 
          */
         void copyTo(CameraCalibration &target) const
         {
-          target.fx = fx;
-          target.fy = fy;
-          target.cx = cx;
-          target.cy = cy;
-          target.d0 = d0;
-          target.d1 = d1;
-          target.d2 = d2;
-          target.d3 = d3;
-          target.width = width;
-          target.height = height;
+	    target = *this;
         }
+
+	/**
+	 * @brief create a calibration struct based on the information embedded
+	 *        in the frame
+	 *
+	 * this function will throw if the calibration parameters are not embedded
+	 * as attributes in the frame
+	 */
+	static CameraCalibration fromFrame( const base::samples::frame::Frame& frame )
+	{
+	    CameraCalibration c;
+	    c.fx = frame.getAttribute<double>("fx");
+	    c.fy = frame.getAttribute<double>("fy");
+	    c.cx = frame.getAttribute<double>("cx");
+	    c.cy = frame.getAttribute<double>("cy");
+	    c.width = frame.size.width;
+	    c.height = frame.size.height;
+	    return c;
+	}
+
+	/**
+	 * @brief write the calibration into the attributes of the frame
+	 *
+	 * will throw if the size of the calibration does not match the size
+	 * of the frame
+	 */
+	void toFrame( base::samples::frame::Frame& frame )
+	{
+	    frame.setAttribute<double>("fx", fx);
+	    frame.setAttribute<double>("fy", fy);
+	    frame.setAttribute<double>("cx", cx);
+	    frame.setAttribute<double>("cy", cy);
+
+	    if( frame.size.width != width )
+		throw std::runtime_error("frame width does not match calibration");
+	    if( frame.size.height != height )
+		throw std::runtime_error("frame height does not match calibration");
+	}
     };
 
     /** 
