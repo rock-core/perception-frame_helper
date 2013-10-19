@@ -209,8 +209,9 @@ namespace frame_helper
         if(src.getFrameMode() != MODE_RGB && src.getFrameMode() != MODE_GRAYSCALE )
             throw std::runtime_error("FrameHelper::undistort: frame mode is not supported!");
 
-        //check if size has changed
-        if( calibration.getImageSize() != cv::Size( src.getWidth(), src.getHeight() ) )
+        // if is not yet valid, or if size has changed
+        if( !calibration.isInitialized() || 
+		calibration.getImageSize() != cv::Size( src.getWidth(), src.getHeight() ) )
         {
 	    calibration.setImageSize( cv::Size( src.getWidth(), src.getHeight() ) );
 	    calibration.initCv();
