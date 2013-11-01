@@ -219,7 +219,7 @@ namespace frame_helper
 	if( !calibration.getCalibration().isValid() )
 	{
 	    // try to get the calibration from the source frame
-	    calibration.setCalibration( CameraCalibration::fromFrame( dst ) );
+	    calibration.setCalibration( CameraCalibration::fromFrame( src ) );
 
 	    if( !calibration.getCalibration().isValid() )
 		throw std::runtime_error("Could not get valid calibration parameters for undistort.");
