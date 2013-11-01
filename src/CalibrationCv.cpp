@@ -27,11 +27,13 @@ void CameraCalibrationCv::setCalibration( const CameraCalibration& calib )
 
     imageSize = cv::Size( calib.width, calib.height );
 
+    initialized = false;
     valid = true;
 }
 
 void CameraCalibrationCv::setImageSize( cv::Size size )
 {
+    initialized = false;
     imageSize = size;
 }
 
