@@ -32,6 +32,18 @@ namespace frame_helper
         int width, height;
 
 	/**
+	 * @return the 3x3 camera matrix, which converts scene points into screen points
+	 */
+	Eigen::Matrix3f getCameraMatrix() const
+	{
+	    Eigen::Matrix3f res;
+	    res << fx, 0, cx,
+		0, fy, cy,
+		0, 0, 1.0f;
+	    return res;
+	}
+
+	/**
 	 * @return true if the calibration values are set
 	 */
 	bool isValid() const
