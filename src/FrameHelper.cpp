@@ -1003,7 +1003,7 @@ namespace frame_helper
             color_depth = 8;
             break;
         default:
-            throw "Unknown format. Can not convert cv:Mat to Frame.";
+            throw std::runtime_error( "Unknown format. Can not convert cv:Mat to Frame." );
         }
         frame.init(src.cols,src.rows,color_depth,mode);
         cv::Mat dst = FrameHelper::convertToCvMat(frame);
