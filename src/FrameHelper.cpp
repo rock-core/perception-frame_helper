@@ -147,7 +147,9 @@ namespace frame_helper
         }
 
         if(bdewrap) {
-            mode += UNDISTORT;
+	    // only apply the undistortion, if not already happened
+	    if( src.getAttribute<int>("undistorted") != 1 )
+		mode += UNDISTORT;
         }
 
         //this is needed to prevent copies 
@@ -205,9 +207,23 @@ namespace frame_helper
     void FrameHelper::undistort(const base::samples::frame::Frame &src,
             base::samples::frame::Frame &dst)
     {
-        //check if format is supported
+        // check if format is supported
         if(src.getFrameMode() != MODE_RGB && src.getFrameMode() != MODE_GRAYSCALE )
             throw std::runtime_error("FrameHelper::undistort: frame mode is not supported!");
+
+	// avoid calling undistort twice
+	if( src.getAttribute<int>( "undistorted" ) == 1 )
+            throw std::runtime_error("The source frame seems to be already undistorted");
+
+	// check if the calibration is valid
+	if( !calibration.getCalibration().isValid() )
+	{
+	    // try to get the calibration from the source frame
+	    calibration.setCalibration( CameraCalibration::fromFrame( src ) );
+
+	    if( !calibration.getCalibration().isValid() )
+		throw std::runtime_error("Could not get valid calibration parameters for undistort.");
+	}
 
         // if is not yet valid, or if size has changed
         if( !calibration.isInitialized() || 
@@ -223,10 +239,8 @@ namespace frame_helper
         remap(cv_src, cv_dst, calibration.map1, calibration.map2, cv::INTER_CUBIC);
 
         //encode the focal length and center into the frame
-        dst.setAttribute("fx",calibration.getCalibration().fx);
-        dst.setAttribute("fy",calibration.getCalibration().fy);
-        dst.setAttribute("cx",calibration.getCalibration().cx);
-        dst.setAttribute("cy",calibration.getCalibration().cy);
+	calibration.getCalibration().toFrame( dst );
+	dst.setAttribute( "undistorted", 1 );
     }
 
     void FrameHelper::resize(const base::samples::frame::Frame &src,
@@ -989,7 +1003,7 @@ namespace frame_helper
             color_depth = 8;
             break;
         default:
-            throw "Unknown format. Can not convert cv:Mat to Frame.";
+            throw std::runtime_error( "Unknown format. Can not convert cv:Mat to Frame." );
         }
         frame.init(src.cols,src.rows,color_depth,mode);
         cv::Mat dst = FrameHelper::convertToCvMat(frame);

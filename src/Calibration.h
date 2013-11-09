@@ -36,6 +36,18 @@ namespace frame_helper
         base::Vector2d pixel_error; /** Re-projection error in pixels during calibration (x and y coordinates) */
 
 	/**
+	 * @return the 3x3 camera matrix, which converts scene points into screen points
+	 */
+	Eigen::Matrix3f getCameraMatrix() const
+	{
+	    Eigen::Matrix3f res;
+	    res << fx, 0, cx,
+		0, fy, cy,
+		0, 0, 1.0f;
+	    return res;
+	}
+
+	/**
 	 * @return true if the calibration values are set
 	 */
 	bool isValid() const
@@ -75,6 +87,10 @@ namespace frame_helper
 	    c.fy = frame.getAttribute<double>("fy");
 	    c.cx = frame.getAttribute<double>("cx");
 	    c.cy = frame.getAttribute<double>("cy");
+	    c.d0 = frame.getAttribute<double>("d0");
+	    c.d1 = frame.getAttribute<double>("d1");
+	    c.d2 = frame.getAttribute<double>("d2");
+	    c.d3 = frame.getAttribute<double>("d3");
 	    c.width = frame.size.width;
 	    c.height = frame.size.height;
 	    return c;
@@ -86,12 +102,16 @@ namespace frame_helper
 	 * will throw if the size of the calibration does not match the size
 	 * of the frame
 	 */
-	void toFrame( base::samples::frame::Frame& frame )
+	void toFrame( base::samples::frame::Frame& frame ) const
 	{
 	    frame.setAttribute<double>("fx", fx);
 	    frame.setAttribute<double>("fy", fy);
 	    frame.setAttribute<double>("cx", cx);
 	    frame.setAttribute<double>("cy", cy);
+	    frame.setAttribute<double>("d0", d0);
+	    frame.setAttribute<double>("d1", d1);
+	    frame.setAttribute<double>("d2", d2);
+	    frame.setAttribute<double>("d3", d3);
 
 	    if( frame.size.width != width )
 		throw std::runtime_error("frame width does not match calibration");
