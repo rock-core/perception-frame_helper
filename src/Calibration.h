@@ -3,6 +3,7 @@
 
 #include <string>
 #include <Eigen/Geometry>
+#include <base/Eigen.hpp>
 #include <base/samples/Frame.hpp>
 #include <base/Float.hpp>
 
@@ -19,17 +20,20 @@ namespace frame_helper
 	CameraCalibration()
 	    : fx(base::unset<float>()), fy(base::unset<float>()), cx(base::unset<float>()), cy(base::unset<float>()), 
 	    d0(base::unset<float>()), d1(base::unset<float>()), d2(base::unset<float>()), d3(base::unset<float>()),
-	    width(-1), height(-1)
+	    width(-1), height(-1), pixel_error(base::NaN<double>()*base::Vector2d::Ones())
 	{}
 
 	CameraCalibration( double fx, double fy, double cx, double cy, double d0, double d1, double d2, double d3 )
 	    : fx(fx), fy(fy), cx(cx), cy(cy), 
 	    d0(d0), d1(d1), d2(d2), d3(d3),
-	    width(-1), height(-1)
+	    width(-1), height(-1), pixel_error(base::NaN<double>()*base::Vector2d::Ones())
 	{}
 
 	double fx, fy, cx, cy, d0, d1, d2, d3;
         int width, height;
+
+        /** Calibration Errors 1-sigma standard deviation **/
+        base::Vector2d pixel_error; /** Re-projection error in pixels during calibration (x and y coordinates) */
 
 	/**
 	 * @return true if the calibration values are set

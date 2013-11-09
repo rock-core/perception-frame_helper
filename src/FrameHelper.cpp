@@ -858,7 +858,7 @@ namespace frame_helper
     {
         int frame_total_size = src1.getNumberOfBytes();
 
-        if(frame_total_size != src2.getNumberOfBytes())
+        if(frame_total_size != static_cast<int>(src2.getNumberOfBytes()))
             throw std::runtime_error("calcDiff: size missmatch between src1 and src2 --> can not calc diff! ");
         if(src1.data_depth != 8)
             throw std::runtime_error("calcDiff: only 8 bit data depth is supported!");
