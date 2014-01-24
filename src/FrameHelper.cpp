@@ -147,7 +147,9 @@ namespace frame_helper
         }
 
         if(bdewrap) {
-            mode += UNDISTORT;
+	    // only apply the undistortion, if not already happened
+	    if( src.getAttribute<int>("undistorted") != 1 )
+		mode += UNDISTORT;
         }
 
         //this is needed to prevent copies 
@@ -205,12 +207,27 @@ namespace frame_helper
     void FrameHelper::undistort(const base::samples::frame::Frame &src,
             base::samples::frame::Frame &dst)
     {
-        //check if format is supported
+        // check if format is supported
         if(src.getFrameMode() != MODE_RGB && src.getFrameMode() != MODE_GRAYSCALE )
             throw std::runtime_error("FrameHelper::undistort: frame mode is not supported!");
 
-        //check if size has changed
-        if( calibration.getImageSize() != cv::Size( src.getWidth(), src.getHeight() ) )
+	// avoid calling undistort twice
+	if( src.getAttribute<int>( "undistorted" ) == 1 )
+            throw std::runtime_error("The source frame seems to be already undistorted");
+
+	// check if the calibration is valid
+	if( !calibration.getCalibration().isValid() )
+	{
+	    // try to get the calibration from the source frame
+	    calibration.setCalibration( CameraCalibration::fromFrame( src ) );
+
+	    if( !calibration.getCalibration().isValid() )
+		throw std::runtime_error("Could not get valid calibration parameters for undistort.");
+	}
+
+        // if is not yet valid, or if size has changed
+        if( !calibration.isInitialized() || 
+		calibration.getImageSize() != cv::Size( src.getWidth(), src.getHeight() ) )
         {
 	    calibration.setImageSize( cv::Size( src.getWidth(), src.getHeight() ) );
 	    calibration.initCv();
@@ -222,10 +239,8 @@ namespace frame_helper
         remap(cv_src, cv_dst, calibration.map1, calibration.map2, cv::INTER_CUBIC);
 
         //encode the focal length and center into the frame
-        dst.setAttribute("fx",calibration.getCalibration().fx);
-        dst.setAttribute("fy",calibration.getCalibration().fy);
-        dst.setAttribute("cx",calibration.getCalibration().cx);
-        dst.setAttribute("cy",calibration.getCalibration().cy);
+	calibration.getCalibration().toFrame( dst );
+	dst.setAttribute( "undistorted", 1 );
     }
 
     void FrameHelper::resize(const base::samples::frame::Frame &src,
@@ -360,7 +375,7 @@ namespace frame_helper
                 {
                     const cv::Mat cv_src = FrameHelper::convertToCvMat(src);
                     cv::Mat cv_dst = FrameHelper::convertToCvMat(dst);
-                    cv::cvtColor(cv_src,cv_dst,CV_BGR2RGB);
+                    cv::cvtColor(cv_src,cv_dst,cv::COLOR_BGR2RGB);
                 }
                 break;
 
@@ -369,7 +384,7 @@ namespace frame_helper
                 {
                     const cv::Mat cv_src = FrameHelper::convertToCvMat(src);
                     cv::Mat cv_dst = FrameHelper::convertToCvMat(dst);
-                    cv::cvtColor(cv_src,cv_dst,CV_BGR2GRAY);
+                    cv::cvtColor(cv_src,cv_dst,cv::COLOR_BGR2GRAY);
                     break;
                 }
                 //RGB --> bayer pattern  
@@ -411,7 +426,7 @@ namespace frame_helper
                 {
                     const cv::Mat cv_src = FrameHelper::convertToCvMat(src);
                     cv::Mat cv_dst = FrameHelper::convertToCvMat(dst);
-                    cv::cvtColor(cv_src,cv_dst,CV_RGB2BGR);
+                    cv::cvtColor(cv_src,cv_dst,cv::COLOR_RGB2BGR);
                 }
                 break;
 
@@ -561,7 +576,7 @@ namespace frame_helper
                 convertBayerToRGB24(src.getImageConstPtr(),frame_buffer3.getImagePtr(),src.getWidth(),src.getHeight(),src.frame_mode);	
                 {
                     cv::Mat cv_dst = FrameHelper::convertToCvMat(dst);
-                    cv::cvtColor(FrameHelper::convertToCvMat(frame_buffer3),cv_dst,CV_RGB2BGR);
+                    cv::cvtColor(FrameHelper::convertToCvMat(frame_buffer3),cv_dst,cv::COLOR_RGB2BGR);
                     dst.copyImageIndependantAttributes(src);
                 }
                 break;
@@ -857,7 +872,7 @@ namespace frame_helper
     {
         int frame_total_size = src1.getNumberOfBytes();
 
-        if(frame_total_size != src2.getNumberOfBytes())
+        if(frame_total_size != static_cast<int>(src2.getNumberOfBytes()))
             throw std::runtime_error("calcDiff: size missmatch between src1 and src2 --> can not calc diff! ");
         if(src1.data_depth != 8)
             throw std::runtime_error("calcDiff: only 8 bit data depth is supported!");
@@ -988,7 +1003,7 @@ namespace frame_helper
             color_depth = 8;
             break;
         default:
-            throw "Unknown format. Can not convert cv:Mat to Frame.";
+            throw std::runtime_error( "Unknown format. Can not convert cv:Mat to Frame." );
         }
         frame.init(src.cols,src.rows,color_depth,mode);
         cv::Mat dst = FrameHelper::convertToCvMat(frame);

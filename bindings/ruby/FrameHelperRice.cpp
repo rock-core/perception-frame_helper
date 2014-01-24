@@ -1,4 +1,4 @@
-#include "FrameHelper.h"
+#include "../../src/FrameHelper.h"
 
 #include <rtt/typelib/TypelibMarshallerBase.hpp>
 #include <rice/Constructor.hpp>
