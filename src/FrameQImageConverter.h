@@ -95,11 +95,10 @@ namespace frame_helper
                     break;
 		    
                 case base::samples::frame::MODE_RGB:
-                    // Provide the buffer as const uchar* and call bits() to make QImage
-                    // do a deep copy. This is needed to ensure that QImage gets proper
+                    // Provide the buffer as const uchar* and do a deep copy
+                    // This is needed to ensure that QImage gets proper
                     // buffer alignment
-                    dst = QImage((const uchar*)pbuffer, width, height, width*pixel_size, QImage::Format_RGB888);
-                    dst.bits();
+                    dst = QImage((const uchar*)pbuffer, width, height, width*pixel_size, QImage::Format_RGB888).copy();
                     break;
                 case base::samples::frame::MODE_PJPG:
                 {
