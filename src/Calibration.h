@@ -44,7 +44,12 @@ namespace frame_helper
 	/**
 	 * @return the 3x3 camera matrix, which converts scene points into screen points
 	 */
-	Eigen::Matrix3f getCameraMatrix() const;
+	Eigen::Matrix3d getCameraMatrix() const;
+
+        /**
+         * @return the 2x2 covariance matrix of the pixel reprojection error
+         */
+        Eigen::Matrix2d getPixelCovariance() const;
 
 	/**
 	 * @return true if the calibration values are set
@@ -86,8 +91,8 @@ namespace frame_helper
 	bool isValid() const;
 
 	/** 
-	 * @return the transform that when applied to a point in the left 
-	 * image will give the point in the right image.
+	 * @return the transform that when applied to a point in the reference frame
+         * of the left camera will give the point in the frame of the right camera
 	 */
 	Eigen::Affine3d getTransform() const;
     };

@@ -25,12 +25,20 @@ CameraCalibration::CameraCalibration(
     ex(base::unset<double>()), ey(base::unset<double>())
 {}
 
-Eigen::Matrix3f CameraCalibration::getCameraMatrix() const
+Eigen::Matrix3d CameraCalibration::getCameraMatrix() const
 {
-    Eigen::Matrix3f res;
+    Eigen::Matrix3d res;
     res << fx, 0, cx,
         0, fy, cy,
-        0, 0, 1.0f;
+        0, 0, 1.0;
+    return res;
+}
+
+Eigen::Matrix2d CameraCalibration::getPixelCovariance() const
+{
+    Eigen::Matrix2d res;
+    res << ex, 0.0,
+        0.0, ey;
     return res;
 }
 
