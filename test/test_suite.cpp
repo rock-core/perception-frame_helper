@@ -62,5 +62,8 @@ BOOST_AUTO_TEST_CASE(convert_image)
 
 BOOST_AUTO_TEST_CASE( load_calibration_file )
 {
-    StereoCalibration calib = StereoCalibration::fromMatlabFile( "test/calib.txt" );
+    StereoCalibration calib;
+    BOOST_ASSERT( !calib.isValid() );
+    calib = StereoCalibration::fromMatlabFile( "test/calib.txt" );
+    BOOST_ASSERT( calib.isValid() );
 }

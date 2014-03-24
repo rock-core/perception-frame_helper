@@ -128,6 +128,30 @@ namespace frame_helper
 	double tx, ty, tz;
 	double rx, ry, rz;
 
+	ExtrinsicCalibration()
+            : tx(base::unset<double>()), ty(base::unset<double>()), tz(base::unset<double>()), 
+              rx(base::unset<double>()), ry(base::unset<double>()), rz(base::unset<double>())
+        {}
+
+	ExtrinsicCalibration( double tx, double ty, double tz, double rx, double ry, double rz )
+            : tx(tx), ty(ty), tz(tz), 
+              rx(rx), ry(ry), rz(rz)
+        {}
+
+	/**
+	 * @return true if the calibration values are set
+	 */
+	bool isValid() const
+	{
+	    return 
+		!base::isUnset<double>(tx) &&	
+		!base::isUnset<double>(ty) &&	
+		!base::isUnset<double>(tz) &&	
+		!base::isUnset<double>(rx) &&	
+		!base::isUnset<double>(ry) &&	
+		!base::isUnset<double>(rz);
+	}
+
 	/** 
 	 * @return the transform that when applied to a point in the left 
 	 * image will give the point in the right image.
@@ -149,6 +173,17 @@ namespace frame_helper
     {
 	CameraCalibration camLeft, camRight;
 	ExtrinsicCalibration extrinsic;
+
+	/**
+	 * @return true if the calibration values are set
+	 */
+	bool isValid() const
+	{
+            return
+                camLeft.isValid() &&
+                camRight.isValid() &&
+                extrinsic.isValid();
+        }
 
 	/**
 	 * Creates a calibration object from the output .txt file of
