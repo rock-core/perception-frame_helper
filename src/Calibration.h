@@ -23,10 +23,12 @@ namespace frame_helper
 	    width(-1), height(-1), pixel_error(base::NaN<double>()*base::Vector2d::Ones())
 	{}
 
-	CameraCalibration( double fx, double fy, double cx, double cy, double d0, double d1, double d2, double d3 )
+	CameraCalibration( double fx, double fy, double cx, double cy, 
+                double d0, double d1, double d2, double d3, 
+                int width = -1, int height = -1 )
 	    : fx(fx), fy(fy), cx(cx), cy(cy), 
 	    d0(d0), d1(d1), d2(d2), d3(d3),
-	    width(-1), height(-1), pixel_error(base::NaN<double>()*base::Vector2d::Ones())
+	    width(width), height(width), pixel_error(base::NaN<double>()*base::Vector2d::Ones())
 	{}
 
 	double fx, fy, cx, cy, d0, d1, d2, d3;
@@ -187,9 +189,17 @@ namespace frame_helper
 
 	/**
 	 * Creates a calibration object from the output .txt file of
-	 * the matlab calibration toolbox.
+	 * the matlab calibration toolbox. Note, this will not make a valid
+         * calibration, as the size of the target image still hast to be set
 	 */
 	static StereoCalibration fromMatlabFile( const std::string& file );
+
+	/**
+	 * Creates a calibration object from the output .txt file of
+	 * the matlab calibration toolbox. 
+         */
+	static StereoCalibration fromMatlabFile( const std::string& file, int width, int height );
+
         /**
          * copy to another StereoCalibration structure 
          */

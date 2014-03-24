@@ -9,6 +9,8 @@ CameraCalibrationCv::CameraCalibrationCv() : valid(false), initialized(false) {}
 
 void CameraCalibrationCv::setCalibration( const CameraCalibration& calib )
 {
+    if( !calib.isValid() )
+        throw std::runtime_error("Camera calibration values are not valid.");
     this->calib = calib;
 
     camMatrix.create(3, 3, CV_64F);
@@ -71,6 +73,9 @@ void StereoCalibrationCv::setCalibration( const StereoCalibration& stereoCalib )
     calib = stereoCalib;
     camLeft.setCalibration( stereoCalib.camLeft );
     camRight.setCalibration( stereoCalib.camRight );
+
+    if( !calib.extrinsic.isValid() )
+        throw std::runtime_error("Stereo calibration values are not valid.");
 
     T.create(3, 1, CV_64F);
     T.at<double>(0,0) = calib.extrinsic.tx;
