@@ -9,6 +9,100 @@
 using namespace frame_helper;
 using namespace std;
 
+CameraCalibration::CameraCalibration()
+    : fx(base::unset<double>()), fy(base::unset<double>()), cx(base::unset<double>()), cy(base::unset<double>()), 
+    d0(base::unset<double>()), d1(base::unset<double>()), d2(base::unset<double>()), d3(base::unset<double>()),
+    width(-1), height(-1), ex(base::unset<double>()), ey(base::unset<double>())
+{}
+
+CameraCalibration::CameraCalibration( 
+        double fx, double fy, double cx, double cy, 
+        double d0, double d1, double d2, double d3, 
+        int width, int height )
+    : fx(fx), fy(fy), cx(cx), cy(cy), 
+    d0(d0), d1(d1), d2(d2), d3(d3),
+    width(width), height(width),  
+    ex(base::unset<double>()), ey(base::unset<double>())
+{}
+
+Eigen::Matrix3f CameraCalibration::getCameraMatrix() const
+{
+    Eigen::Matrix3f res;
+    res << fx, 0, cx,
+        0, fy, cy,
+        0, 0, 1.0f;
+    return res;
+}
+
+bool CameraCalibration::isValid() const
+{
+    return 
+        width > 0 &&
+        height > 0 &&
+        !base::isUnset<double>(fx) &&	
+        !base::isUnset<double>(fy) &&	
+        !base::isUnset<double>(cx) &&	
+        !base::isUnset<double>(cy) &&	
+        !base::isUnset<double>(d0) &&	
+        !base::isUnset<double>(d1) &&	
+        !base::isUnset<double>(d2) &&	
+        !base::isUnset<double>(d3);
+}
+
+CameraCalibration CameraCalibration::fromFrame( const base::samples::frame::Frame& frame )
+{
+    CameraCalibration c;
+    c.fx = frame.getAttribute<double>("fx");
+    c.fy = frame.getAttribute<double>("fy");
+    c.cx = frame.getAttribute<double>("cx");
+    c.cy = frame.getAttribute<double>("cy");
+    c.d0 = frame.getAttribute<double>("d0");
+    c.d1 = frame.getAttribute<double>("d1");
+    c.d2 = frame.getAttribute<double>("d2");
+    c.d3 = frame.getAttribute<double>("d3");
+    c.width = frame.size.width;
+    c.height = frame.size.height;
+    return c;
+}
+
+void CameraCalibration::toFrame( base::samples::frame::Frame& frame ) const
+{
+    frame.setAttribute<double>("fx", fx);
+    frame.setAttribute<double>("fy", fy);
+    frame.setAttribute<double>("cx", cx);
+    frame.setAttribute<double>("cy", cy);
+    frame.setAttribute<double>("d0", d0);
+    frame.setAttribute<double>("d1", d1);
+    frame.setAttribute<double>("d2", d2);
+    frame.setAttribute<double>("d3", d3);
+
+    if( frame.size.width != width )
+        throw std::runtime_error("frame width does not match calibration");
+    if( frame.size.height != height )
+        throw std::runtime_error("frame height does not match calibration");
+}
+
+ExtrinsicCalibration::ExtrinsicCalibration()
+: tx(base::unset<double>()), ty(base::unset<double>()), tz(base::unset<double>()), 
+    rx(base::unset<double>()), ry(base::unset<double>()), rz(base::unset<double>())
+{}
+
+ExtrinsicCalibration::ExtrinsicCalibration( double tx, double ty, double tz, double rx, double ry, double rz )
+: tx(tx), ty(ty), tz(tz), 
+    rx(rx), ry(ry), rz(rz)
+{}
+
+bool ExtrinsicCalibration::isValid() const
+{
+    return 
+        !base::isUnset<double>(tx) &&	
+        !base::isUnset<double>(ty) &&	
+        !base::isUnset<double>(tz) &&	
+        !base::isUnset<double>(rx) &&	
+        !base::isUnset<double>(ry) &&	
+        !base::isUnset<double>(rz);
+}
+
 Eigen::Affine3d ExtrinsicCalibration::getTransform() const
 {
     Eigen::Vector3d t( tx, ty, tz ), r( rx, ry, rz );
@@ -25,6 +119,13 @@ StereoCalibration StereoCalibration::fromMatlabFile( const std::string& file_nam
 {
     return StereoCalibration::fromMatlabFile( file_name, -1, -1 );
 }
+
+StereoCalibration::StereoCalibration()
+{}
+
+StereoCalibration::StereoCalibration( const CameraCalibration& left, const CameraCalibration& right, const ExtrinsicCalibration& extrinsic )
+    : camLeft( left ), camRight( right ), extrinsic( extrinsic )
+{}
 
 StereoCalibration StereoCalibration::fromMatlabFile( const std::string& file_name, int width, int height )
 {
@@ -69,7 +170,7 @@ StereoCalibration StereoCalibration::fromMatlabFile( const std::string& file_nam
     // now we can fill the calibration based on the matlab
     // vectors we have obtained
     StereoCalibration result = 
-    {
+    StereoCalibration(
 	CameraCalibration( raw["fc_left"][0], raw["fc_left"][1], 
 	  raw["cc_left"][0], raw["cc_left"][1], 
 	  raw["kc_left"][0], raw["kc_left"][1], raw["kc_left"][2], raw["kc_left"][3],
@@ -78,11 +179,19 @@ StereoCalibration StereoCalibration::fromMatlabFile( const std::string& file_nam
 	  raw["cc_right"][0], raw["cc_right"][1], 
 	  raw["kc_right"][0], raw["kc_right"][1], raw["kc_right"][2], raw["kc_right"][3],
           width, height ),
-	{
+        ExtrinsicCalibration(
 	  raw["T"][0], raw["T"][1], raw["T"][2],
-	  raw["om"][0], raw["om"][1], raw["om"][2]
-	}
-    };
+	  raw["om"][0], raw["om"][1], raw["om"][2] )
+        );
 
     return result;
 }
+
+bool StereoCalibration::isValid() const
+{
+    return
+        camLeft.isValid() &&
+        camRight.isValid() &&
+        extrinsic.isValid();
+}
+
