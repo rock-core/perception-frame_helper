@@ -138,13 +138,7 @@ namespace frame_helper
          */
         void copyTo(ExtrinsicCalibration &target) const
         {
-          target.tx = tx;
-          target.ty = ty;
-          target.tz = tz;
-
-          target.rx = rx;
-          target.ry = ry;
-          target.rz = rz;
+            target = *this;
         }
     };
 
