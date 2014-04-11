@@ -787,6 +787,14 @@ namespace frame_helper
         return calcDistanceToObject(fy,virtual_height,real_height);
     }
 
+
+    void FrameHelper::convertBayerToRGB24(const base::samples::frame::Frame &src,base::samples::frame::Frame &dst)
+    {
+        dst.init(src.getWidth(),src.getHeight(),src.getDataDepth(),MODE_RGB, -1);
+        convertBayerToRGB24(src.getImageConstPtr(),dst.getImagePtr(),src.getWidth(),src.getHeight(),src.frame_mode);	
+        dst.copyImageIndependantAttributes(src);
+    }
+
     void FrameHelper::convertBayerToRGB24(const uint8_t *src, uint8_t *dst, int width, int height, base::samples::frame::frame_mode_t mode)
     {
         const int srcStep = width;
