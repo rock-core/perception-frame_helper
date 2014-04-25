@@ -42,6 +42,17 @@ Eigen::Matrix2d CameraCalibration::getPixelCovariance() const
     return res;
 }
 
+void CameraCalibration::rescale( int width, int height )
+{
+    double sx = (double)width / (double)this->width;
+    double sy = (double)height / (double)this->height;
+
+    fx *= sx;
+    cx *= sx;
+    fy *= sy;
+    cy *= sy;
+}
+
 bool CameraCalibration::isValid() const
 {
     return 

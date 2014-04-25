@@ -57,6 +57,18 @@ namespace frame_helper
 	bool isValid() const;
 
 	/**
+	 * @brief rescale the calibration to a different image size
+	 *
+	 * Use this function if you have a calibration for a particular resolution,
+	 * and you have changed the resolution of the image. Useful for e.g. downscaled
+	 * images with lower resolution. 
+	 *
+	 * @note this function will not maintain the aspect ratio, you have to
+	 * do this yourselves.
+	 */
+	void rescale( int width, int height );
+
+	/**
 	 * @brief create a calibration struct based on the information embedded
 	 *        in the frame
 	 *
