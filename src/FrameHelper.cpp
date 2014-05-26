@@ -1,10 +1,13 @@
 #include "FrameHelper.h"
-#include <stdexcept>
 
-#include <libv4lconvert.h>
+#include <stdexcept>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <jpeg_conversion/jpeg_conversion.hpp>
+
+#ifdef WITH_LIBV4l2
+#include <libv4lconvert.h>
+#endif
 
 using namespace base::samples::frame;
 
@@ -70,54 +73,59 @@ namespace frame_helper
     //use opencv for rotation
     //remove static variable (not thread save!!!)
     //move hole stuff to the end of the file (history will be lost)
-    bool FrameHelper::convertPJPGToRGB24(const uint8_t *source, uint8_t *target_buffer,const size_t source_size, const int width, const int height){
-        #if defined __USE_BSD || defined __USE_XOPEN2K
-            setenv("LIBV4LCONTROL_CONTROLS", "0", 1);
-        #else
-    	putenv("LIBV4LCONTROL_CONTROLS=0");
-        #endif
-            static struct v4lconvert_data *v4lconvert_data;
-            static struct v4l2_format src_fmt;
-            static struct v4l2_format fmt;
+    bool FrameHelper::convertPJPGToRGB24(const uint8_t *source, uint8_t *target_buffer,const size_t source_size, const int width, const int height)
+    {
+        #ifdef WITH_LIBV4l2
+            #if defined __USE_BSD || defined __USE_XOPEN2K
+                setenv("LIBV4LCONTROL_CONTROLS", "0", 1);
+            #else
+                putenv("LIBV4LCONTROL_CONTROLS=0");
+            #endif
+                static struct v4lconvert_data *v4lconvert_data;
+                static struct v4l2_format src_fmt;
+                static struct v4l2_format fmt;
 
-            //Initialize v4l converter
-            v4lconvert_data = v4lconvert_create(0);
+                //Initialize v4l converter
+                v4lconvert_data = v4lconvert_create(0);
 
-            //Initializate needed conversion structures
-            src_fmt.fmt.pix.pixelformat = v4l2_fourcc('P', 'J', 'P', 'G');
-            src_fmt.fmt.pix.width = height;
-            src_fmt.fmt.pix.height = width;
-            src_fmt.fmt.pix.bytesperline = src_fmt.fmt.pix.width;
-            src_fmt.fmt.pix.sizeimage = src_fmt.fmt.pix.width * src_fmt.fmt.pix.height;
-            memcpy(&fmt, &src_fmt, sizeof fmt);
+                //Initializate needed conversion structures
+                src_fmt.fmt.pix.pixelformat = v4l2_fourcc('P', 'J', 'P', 'G');
+                src_fmt.fmt.pix.width = height;
+                src_fmt.fmt.pix.height = width;
+                src_fmt.fmt.pix.bytesperline = src_fmt.fmt.pix.width;
+                src_fmt.fmt.pix.sizeimage = src_fmt.fmt.pix.width * src_fmt.fmt.pix.height;
+                memcpy(&fmt, &src_fmt, sizeof fmt);
 
-            fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_RGB24;
-            fmt.fmt.pix.sizeimage = src_fmt.fmt.pix.width * src_fmt.fmt.pix.height * 3;
+                fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_RGB24;
+                fmt.fmt.pix.sizeimage = src_fmt.fmt.pix.width * src_fmt.fmt.pix.height * 3;
 
-            unsigned char tmp[fmt.fmt.pix.sizeimage];
+                unsigned char tmp[fmt.fmt.pix.sizeimage];
 
-            //Do Conversion
-            //int bytes = v4lconvert_convert(v4lconvert_data,&src_fmt,&fmt,(unsigned char*)source,source_size,(unsigned char*)target_buffer,fmt.fmt.pix.sizeimage);
-            int bytes = v4lconvert_convert(v4lconvert_data,&src_fmt,&fmt,(unsigned char*)source,source_size,tmp,fmt.fmt.pix.sizeimage);
+                //Do Conversion
+                //int bytes = v4lconvert_convert(v4lconvert_data,&src_fmt,&fmt,(unsigned char*)source,source_size,(unsigned char*)target_buffer,fmt.fmt.pix.sizeimage);
+                int bytes = v4lconvert_convert(v4lconvert_data,&src_fmt,&fmt,(unsigned char*)source,source_size,tmp,fmt.fmt.pix.sizeimage);
 
 
 
-            //Check if conversion was sucsessful
-            if(bytes < 0){
-                printf("error occoured %i, %i %s:%i\n",bytes,fmt.fmt.pix.sizeimage,__FILE__,__LINE__);
-                printf("Width: %i, height: %i, source_size: %i\n",width,height,(int)source_size);
-                return false;
-            }
-
-            //Image is rotated 90deg so rotate buffer
-            for(int x=0;x<width;x++){
-                for(int y=0;y<height;y++){
-                    target_buffer[y*(width*3)+(x*3)+0] = tmp[x*(height*3)+(y*3)+0];
-                    target_buffer[y*(width*3)+(x*3)+1] = tmp[x*(height*3)+(y*3)+1];
-                    target_buffer[y*(width*3)+(x*3)+2] = tmp[x*(height*3)+(y*3)+2];
+                //Check if conversion was sucsessful
+                if(bytes < 0){
+                    printf("error occoured %i, %i %s:%i\n",bytes,fmt.fmt.pix.sizeimage,__FILE__,__LINE__);
+                    printf("Width: %i, height: %i, source_size: %i\n",width,height,(int)source_size);
+                    return false;
                 }
-            }
-            return true;	
+
+                //Image is rotated 90deg so rotate buffer
+                for(int x=0;x<width;x++){
+                    for(int y=0;y<height;y++){
+                        target_buffer[y*(width*3)+(x*3)+0] = tmp[x*(height*3)+(y*3)+0];
+                        target_buffer[y*(width*3)+(x*3)+1] = tmp[x*(height*3)+(y*3)+1];
+                        target_buffer[y*(width*3)+(x*3)+2] = tmp[x*(height*3)+(y*3)+2];
+                    }
+                }
+        #else
+            throw std::runtime_error("frame_helper was built without v4l2 support!");
+        #endif
+        return true;	
     }
 
 

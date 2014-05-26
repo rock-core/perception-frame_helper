@@ -8,9 +8,9 @@
   <logo>http://</logo>
 <depend package="base/types" />
 <depend package="opencv" />
-<depend package="v4l" />
 <depend package="image_processing/jpeg_conversion" />
 
+<depend package="v4l" optional ="1"/>
 <depend package="typelib" optional="1" />
 <depend package="rtt_typelib" optional="1" />
 <tags>stable</tags>
