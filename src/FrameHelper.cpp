@@ -1014,6 +1014,10 @@ namespace frame_helper
             mode = MODE_GRAYSCALE;
             color_depth = 8;
             break;
+        case CV_16UC1:
+            mode = MODE_GRAYSCALE;
+            color_depth = 16;
+            break;
         case CV_8UC3:
             mode = MODE_BGR;
             color_depth = 8;

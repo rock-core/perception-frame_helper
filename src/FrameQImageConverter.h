@@ -20,6 +20,8 @@
 #include <stdexcept>
 #include <math.h>
 #include <limits>
+#include <opencv2/core/core.hpp>
+#include <opencv2/contrib/contrib.hpp>
 
 static const float MAX_H = 10.0f;    //this value is used to convert a 64Bit grayscale image 
 //to a rgb image
@@ -66,6 +68,14 @@ namespace frame_helper
             //{
             int copyFrameToQImageRGB888(QImage &dst,base::samples::frame::frame_mode_t mode,int pixel_size, unsigned int width,unsigned int height, const char* pbuffer, const size_t buffer_size=0)
             {
+                //Safty check to prevent error on empty images
+                if(width == 0 || height  == 0 || buffer_size == 0)
+                {
+                    //TODO could be replaced by dummy "no-Image" image
+                    dst = QImage();
+                    return 0;
+                }
+
                 int ireturn = 0;
                 //check if dst has the right format
                 if((unsigned int) dst.width() != width || (unsigned int) dst.height()!= height || dst.format() != QImage::Format_RGB888)
@@ -159,15 +169,41 @@ namespace frame_helper
                             dst = QImage((uchar*)pbuffer, width, height, width, QImage::Format_Indexed8).convertToFormat(QImage::Format_RGB888);
                             break;
                         case 2:
+                            {
                             dst = QImage(width, height, QImage::Format_RGB888);
-							for(unsigned int x=0;x<width;x++){
-								for(unsigned int y=0;y<height;y++){
-									uint16_t *data = (uint16_t*)pbuffer;
-									uint8_t value = data[y*width+x]/255.0;
-									dst.setPixel(x,y,qRgb(value,value,value));
-								}
-							}
+
+                            //The CV functions does not work in 16bit images, so using only 8bit
+                            //image from below
+                            const cv::Mat mat_src(height,width,CV_16U,(void*)pbuffer);
+                            cv::Mat src_new(height,width,CV_8U);
+                            cv::MatConstIterator_<uint16_t> it_src = mat_src.begin<uint16_t>(); 
+                            cv::MatIterator_<uint8_t> it_dst = src_new.begin<uint8_t>(); 
+                           
+                            //Create a logarhitmic scale for visualization
+                            for (; it_src != mat_src.end<uint16_t>(); ++it_src, ++it_dst)
+                            {
+                                uint16_t v = *it_src;
+                                static double base = 2.2;
+                                double v_log = log((double)v+1) / log(base);
+                                (*it_dst) = v_log*(255.0/ log((double)65536) / log(base));
+                            }
+
+                            cv::Mat mat_dst(height,width,CV_8UC3);
+                            cv::applyColorMap(src_new,mat_dst,cv::COLORMAP_RAINBOW);
+
+                            //Manual copy the array, to make zero values black
+                            cv::Vec3b black = cv::Vec3b(0, 0, 255); //*mat_dst.begin<cv::Vec3b>();
+                            for (cv::Mat3b::iterator it = mat_dst.begin<cv::Vec3b>(); it != mat_dst.end<cv::Vec3b>(); ++it) 
+                            {
+                                if (*it == black) 
+                                {
+                                    *it = cv::Vec3b(0, 0, 0);
+                                }
+                            }
+                            dst = QImage((const uchar*)mat_dst.data, width, height, width*3, QImage::Format_RGB888).copy();
+
                             break;
+                            }
                         case 8:     //we have to scale the 64 data depth --> a rgb color coding is used
                         {
                             static const float SCALE_H = 1/MAX_H;
