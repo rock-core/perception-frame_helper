@@ -21,13 +21,19 @@
 #include <math.h>
 #include <limits>
 #include <opencv2/core/core.hpp>
-#include <opencv2/contrib/contrib.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
-static const float MAX_H = 10.0f;    //this value is used to convert a 64Bit grayscale image 
-//to a rgb image
-//if a vaule of 10 is reached ==>  h = 360° but s will be reduced 
+// cv::applyColorMap was moved to imgproc
+// and contrib no longer exists
+#if CV_MAJOR_VERSION < 3
+    #include <opencv2/contrib/contrib.hpp>
+#endif
+
 namespace frame_helper
 {
+    //to a rgb image
+    //if a vaule of 10 is reached ==>  h = 360° but s will be reduced 
+    static const float MAX_H = 10.0f;    //this value is used to convert a 64Bit grayscale image 
     class FrameQImageConverter
     {
         public:
