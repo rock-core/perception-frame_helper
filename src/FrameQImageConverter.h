@@ -263,6 +263,15 @@ namespace frame_helper
                     }
                     break;
                 }
+                case base::samples::frame::MODE_RGB32:
+                {
+                    switch(pixel_size)
+                    {
+                        case 8:
+                            dst = QImage((uchar*)pbuffer, width, height, width, QImage::Format_RGB32).convertToFormat(QImage::Format_RGB888);
+                    }
+                    break;
+                }
 
 
                 default:
