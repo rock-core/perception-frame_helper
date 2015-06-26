@@ -4,6 +4,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <jpeg_conversion/jpeg_conversion.hpp>
+#include <base/Logging.hpp>
 
 #ifdef WITH_LIBV4l2
 #include <libv4lconvert.h>
@@ -39,9 +40,6 @@ namespace frame_helper
 	    case 2:
 		itype = CV_16UC1;
 		break;
-	    default:
-		throw "Unknown format. Can not convert Frame "
-		"to cv::Mat.";
 	    }
 	    break;
 	case 3:
@@ -53,19 +51,25 @@ namespace frame_helper
 	    case 6:
 		itype = CV_16UC3;
 		break;
-		throw "Unknown format. Can not convert Frame "
-		"to cv::Mat.";
 	    }
 	    break;
-	    throw "Unknown format. Can not convert Frame "
-	    "to cv::Mat.";
 	}
+
 	return itype;
     }
 
     cv::Mat FrameHelper::convertToCvMat(const base::samples::frame::Frame &frame)
     {
-	return cv::Mat(frame.size.height,frame.size.width, getOpenCvType(frame), (void *)frame.getImageConstPtr());
+        int itype = getOpenCvType(frame);
+        if( itype == 0 )
+        {
+            LOG_WARN_S << "Unsupported combination of "
+                << "ChannelCount: " << frame.getChannelCount()
+                << " PixelSize: " << frame.getPixelSize();
+            throw std::runtime_error("convertToCvMat: Unsupported pixel format. Can not convert Frame to cv::Mat.");
+        }
+
+	return cv::Mat(frame.size.height,frame.size.width, itype, (void *)frame.getImageConstPtr());
     }
 
     //TODO
