@@ -151,10 +151,6 @@ namespace frame_helper
             // JPEG to RGB24 conversion using JpegConversion.
             static void convertJPEGToRGB24(uint8_t const* src, uint8_t* dst, size_t const src_size, int const width, int const height);
 	    
-            /**
-             * @brief convert the provided frame to a cv::Mat
-             * @result - cv::Mat of the provided frame
-             */
 	    static cv::Mat convertToCvMat(const base::samples::frame::Frame &frame);
 	    
 	    static int getOpenCvType(const base::samples::frame::Frame &frame);
