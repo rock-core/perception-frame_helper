@@ -185,16 +185,19 @@ namespace frame_helper
             resize(frame_buffer,dst,offset_x,offset_y,algo);
             break;
         case RESIZE + UNDISTORT:
+            dst.attributes.clear();
             frame_buffer2.init(dst,false);
             resize (src,frame_buffer2,offset_x,offset_y,algo);
             undistort(frame_buffer2,dst);
             break;
         case COLOR + UNDISTORT:
+            dst.attributes.clear();
             frame_buffer2.init(dst,false);
             convertColor(src,frame_buffer2);
             undistort(frame_buffer2,dst);
             break;
         case RESIZE + COLOR + UNDISTORT:
+            dst.attributes.clear();
             frame_buffer.init(src.getWidth(),src.getHeight(),dst.getDataDepth(),dst.getFrameMode(),false);
             convertColor(src,frame_buffer);
             frame_buffer2.init(dst,false);
