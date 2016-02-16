@@ -12,7 +12,7 @@ using namespace std;
 CameraCalibration::CameraCalibration()
     : fx(base::unset<double>()), fy(base::unset<double>()), cx(base::unset<double>()), cy(base::unset<double>()), 
     d0(base::unset<double>()), d1(base::unset<double>()), d2(base::unset<double>()), d3(base::unset<double>()),
-    width(-1), height(-1), ex(base::unset<double>()), ey(base::unset<double>())
+    width(-1), height(-1), ex(base::unset<double>()), ey(base::unset<double>()),fisheye(false)
 {}
 
 CameraCalibration::CameraCalibration( 
@@ -22,7 +22,7 @@ CameraCalibration::CameraCalibration(
     : fx(fx), fy(fy), cx(cx), cy(cy), 
     d0(d0), d1(d1), d2(d2), d3(d3),
     width(width), height(width),  
-    ex(base::unset<double>()), ey(base::unset<double>())
+    ex(base::unset<double>()), ey(base::unset<double>()),fisheye(false)
 {}
 
 Eigen::Matrix3d CameraCalibration::getCameraMatrix() const
