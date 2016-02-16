@@ -385,6 +385,7 @@ namespace frame_helper
                 else
                 {
                     const cv::Mat cv_src = FrameHelper::convertToCvMat(src);
+                    dst.init(cv_src.cols,cv_src.rows,src.getDataDepth(),dst.frame_mode,-1);
                     cv::Mat cv_dst = FrameHelper::convertToCvMat(dst);
                     cv::cvtColor(cv_src,cv_dst,cv::COLOR_BGR2RGB);
                 }
@@ -394,6 +395,7 @@ namespace frame_helper
             case MODE_GRAYSCALE:
                 {
                     const cv::Mat cv_src = FrameHelper::convertToCvMat(src);
+                    dst.init(cv_src.cols,cv_src.rows,src.getDataDepth(),dst.frame_mode,-1);
                     cv::Mat cv_dst = FrameHelper::convertToCvMat(dst);
                     cv::cvtColor(cv_src,cv_dst,cv::COLOR_BGR2GRAY);
                     break;
@@ -440,6 +442,7 @@ namespace frame_helper
                 else
                 {
                     const cv::Mat cv_src = FrameHelper::convertToCvMat(src);
+                    dst.init(cv_src.cols,cv_src.rows,src.getDataDepth(),dst.frame_mode,-1);
                     cv::Mat cv_dst = FrameHelper::convertToCvMat(dst);
                     cv::cvtColor(cv_src,cv_dst,cv::COLOR_RGB2BGR);
                 }
