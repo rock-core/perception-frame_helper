@@ -398,7 +398,7 @@ namespace frame_helper
                     cv::cvtColor(cv_src,cv_dst,cv::COLOR_BGR2GRAY);
                     break;
                 }
-                //RGB --> bayer pattern  
+                //BGR --> bayer pattern  
             case MODE_BAYER:
                 throw  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode bgr to bayer pattern. Please specify bayer pattern (RGGB,GRBG,BGGR,GBRG).");
                 break;
@@ -409,14 +409,18 @@ namespace frame_helper
             case MODE_BAYER_GBRG:
                 throw  std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode bgr to bayer pattern. Conversion is not implemented.");
                 break;
-
+                //BGR --> PNG
+            case MODE_PNG:
+            {
+                const cv::Mat cv_src = FrameHelper::convertToCvMat(src);
+                cv::imencode(".png",cv_src,dst.image);
+                dst.size = src.size;
+                break;
+            }
             default:
                 throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode - mode is unknown");
             }
             break;
-
-
-
 
         case MODE_RGB:
             switch(dst.getFrameMode())
@@ -472,6 +476,17 @@ namespace frame_helper
                 break;
             }
 
+                //RGB --> PNG
+            case MODE_PNG:
+            {
+                const cv::Mat cv_src = FrameHelper::convertToCvMat(src);
+                cv::Mat mat;
+                cv::cvtColor(cv_src,mat,cv::COLOR_RGB2BGR);
+                cv::imencode(".png",mat,dst.image);
+                dst.size = src.size;
+                break;
+            }
+
             default:
                 throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode - mode is unknown");
             }
@@ -499,14 +514,20 @@ namespace frame_helper
                 break;
             }
 
+                //GRAYSCALE --> PNG
+            case MODE_PNG:
+            {
+                const cv::Mat cv_src = FrameHelper::convertToCvMat(src);
+                cv::imencode(".png",cv_src,dst.image);
+                dst.size = src.size;
+                break;
+            }
+
             default:
                 throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode grayscale to ?. Conversion is not implemented.");
                 break;
             }
             break;
-
-
-
 
         case MODE_PJPG:
         {
@@ -685,6 +706,45 @@ namespace frame_helper
             }
             break;
         } // end case MODE_JPEG
+
+        case MODE_PNG:
+        {
+            //PNG --> RGB
+            switch(dst.getFrameMode())
+            {
+            case MODE_RGB:
+                {
+                    cv::Mat out = cv::imdecode(src.image,CV_LOAD_IMAGE_COLOR);
+                    dst.init(out.cols,out.rows,8,MODE_RGB);
+                    cv::cvtColor(out,FrameHelper::convertToCvMat(dst),cv::COLOR_BGR2RGB);
+                    break;
+                }
+
+                //PNG --> BGR
+            case MODE_BGR:
+                {
+                    cv::Mat out = cv::imdecode(src.image,CV_LOAD_IMAGE_COLOR);
+                    copyMatToFrame(out,dst);
+                    break;
+                }
+
+                // PNG --> PNG
+            case MODE_PNG:
+                dst.init(src,true);
+                break;
+
+                //PNG--> grayscale
+            case MODE_GRAYSCALE:
+                {
+                    cv::Mat out = cv::imdecode(src.image,0);
+                    copyMatToFrame(out,dst);
+                    break;
+                }
+
+            default:
+                throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode png to requested mode. Requested mode is unknown");
+            } // end dst.getFrameMode()
+        }
         default:
             throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode ?- mode is unknown");
         }  // end switch(src.getFrameMode())
