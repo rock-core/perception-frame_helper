@@ -41,6 +41,11 @@ namespace frame_helper
          */
         double ex, ey;
 
+        /** 
+         * indicates that the distrotion parameter are for a fisheye lens
+         */
+        bool fisheye;
+
 	/**
 	 * @return the 3x3 camera matrix, which converts scene points into screen points
 	 */

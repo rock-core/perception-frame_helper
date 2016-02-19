@@ -22,6 +22,7 @@
 #include <limits>
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
 
 // cv::applyColorMap was moved to imgproc
 // and contrib no longer exists
@@ -273,6 +274,15 @@ namespace frame_helper
                     break;
                 }
 
+                case base::samples::frame::MODE_PNG:
+                {
+                    char *buffer = const_cast<char*>(pbuffer);          // workaround for Mat non const constructor
+                    const cv::Mat input(1,buffer_size,CV_8UC1,buffer);  // ensure buffer will not be modified !!!
+                    cv::Mat img = cv::imdecode(input,CV_LOAD_IMAGE_COLOR);
+                    dst = QImage((const uchar*)img.data,img.cols,img.rows,QImage::Format_RGB888);
+		    dst = dst.rgbSwapped();
+                    break;
+                }
 
                 default:
                     throw std::runtime_error(" FrameQImageConverter::copyFrameToQImageRGB888: Can not convert frame to RGB888!");
