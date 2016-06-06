@@ -189,8 +189,8 @@ namespace frame_helper
         case COLOR + UNDISTORT:
             dst.attributes.clear();
             frame_buffer2.init(dst,false);
-            convertColor(src,frame_buffer2);
-            undistort(frame_buffer2,dst);
+            undistort(src,frame_buffer2);
+            convertColor(frame_buffer2,dst);
             break;
         case RESIZE + COLOR + UNDISTORT:
             dst.attributes.clear();
