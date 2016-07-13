@@ -131,7 +131,7 @@ void StereoCalibrationCv::initCv()
 	    );
 
 
-  if (isnan(Q.at<double>(3, 3)))
+  if (std::isnan(Q.at<double>(3, 3)))
   {
      throw std::runtime_error("StereoCalibrationCv::initCv: nan in Q calculation. Check calibration parameters.");
   }
