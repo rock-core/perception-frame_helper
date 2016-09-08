@@ -15,15 +15,16 @@ else(LIBV4l2_FOUND AND LIBV4l2C_FOUND)
 endif(LIBV4l2_FOUND AND LIBV4l2C_FOUND)
 
 rock_library(${PROJECT_NAME}
-                 SOURCES FrameHelper.cpp Calibration.cpp CalibrationCv.cpp ColorGradient.cpp
-                 HEADERS Calibration.h
-                        CalibrationCv.h
-                        ColorGradient.h
-                        ColorGradientTypes.h
-                        FrameHelper.h
-                        FrameHelperTypes.h
-                        FrameQImageConverter.h
-                 DEPS_PKGCONFIG base-types opencv jpeg_conversion
-                 DEPS_CMAKE Boost
-                 LIBS ${LIBV4l2_LIBRARIES} ${LIBV4l2C_LIBRARIES}
-                 )
+    SOURCES FrameHelper.cpp Calibration.cpp CalibrationCv.cpp ColorGradient.cpp
+    HEADERS Calibration.h
+        CalibrationCv.h
+        ColorGradient.h
+        ColorGradientTypes.h
+        FrameHelper.h
+        FrameHelperTypes.h
+        FrameQImageConverter.h
+    DEPS_PKGCONFIG base-types opencv jpeg_conversion
+    DEPS_PLAIN 
+        Boost_REGEX
+    LIBS ${LIBV4l2_LIBRARIES} ${LIBV4l2C_LIBRARIES}
+)
