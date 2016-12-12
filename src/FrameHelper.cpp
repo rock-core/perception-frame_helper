@@ -219,7 +219,7 @@ namespace frame_helper
             base::samples::frame::Frame &dst)
     {
         // check if format is supported
-        if(src.getFrameMode() != MODE_RGB && src.getFrameMode() != MODE_GRAYSCALE )
+        if(src.getFrameMode() == MODE_UNDEFINED )
             throw std::runtime_error("FrameHelper::undistort: frame mode is not supported!");
 
 	// avoid calling undistort twice
