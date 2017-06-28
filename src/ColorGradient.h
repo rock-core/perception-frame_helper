@@ -24,9 +24,6 @@ public:
     ColorGradient() { }
     void addColorPoint(const float red, const float green, const float blue, const float value);
     void clearGradient();
-    void createJetMapGradient();
-    void createHotMapGradient();
-    void createGrayscaleMapGradient();
     void getColorAtValue(const float value, float &red, float &green, float &blue) const;
     void colormapSelector(const ColorGradientType type);
 };
