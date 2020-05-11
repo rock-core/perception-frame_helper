@@ -278,7 +278,7 @@ namespace frame_helper
                 {
                     char *buffer = const_cast<char*>(pbuffer);          // workaround for Mat non const constructor
                     const cv::Mat input(1,buffer_size,CV_8UC1,buffer);  // ensure buffer will not be modified !!!
-                    cv::Mat img = cv::imdecode(input,CV_LOAD_IMAGE_COLOR);
+                    cv::Mat img = cv::imdecode(input, cv::IMREAD_COLOR);
                     dst = QImage((const uchar*)img.data,img.cols,img.rows,QImage::Format_RGB888);
 		    dst = dst.rgbSwapped();
                     break;
