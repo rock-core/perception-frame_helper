@@ -14,6 +14,18 @@ else(LIBV4l2_FOUND AND LIBV4l2C_FOUND)
     MESSAGE("## building without v4l2 ##")
 endif(LIBV4l2_FOUND AND LIBV4l2C_FOUND)
 
+if(DEFINED ENV{EXTERNAL_OPENCV_PATH})
+    message("EXTERNAL_OPENCV_PATH is set, searching in location: $ENV{EXTERNAL_OPENCV_PATH}")
+    find_package(OpenCV REQUIRED PATHS $ENV{EXTERNAL_OPENCV_PATH} NO_CMAKE_SYSTEM_PATH)
+else()
+    message("OPENCV_INSTALL_DIR not set, searching in default location(s)")
+    find_package(OpenCV REQUIRED NO_CMAKE_ENVIRONMENT_PATH NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_PATH)
+endif(DEFINED ENV{EXTERNAL_OPENCV_PATH})
+
+
+include_directories("${OpenCV_INCLUDE_DIRS}")
+link_directories(${OpenCV_LIBRARY_DIRS})
+
 rock_library(${PROJECT_NAME}
     SOURCES FrameHelper.cpp Calibration.cpp CalibrationCv.cpp ColorGradient.cpp
     HEADERS Calibration.h
@@ -23,8 +35,8 @@ rock_library(${PROJECT_NAME}
         FrameHelper.h
         FrameHelperTypes.h
         FrameQImageConverter.h
-    DEPS_PKGCONFIG base-types opencv jpeg_conversion
-    DEPS_PLAIN 
+    DEPS_PKGCONFIG base-types jpeg_conversion
+    DEPS_PLAIN
         Boost_REGEX
-    LIBS ${LIBV4l2_LIBRARIES} ${LIBV4l2C_LIBRARIES}
+    LIBS ${LIBV4l2_LIBRARIES} ${LIBV4l2C_LIBRARIES} ${OpenCV_LIBRARIES}
 )
