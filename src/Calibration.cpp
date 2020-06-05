@@ -21,7 +21,7 @@ CameraCalibration::CameraCalibration(
         int width, int height )
     : fx(fx), fy(fy), cx(cx), cy(cy), 
     d0(d0), d1(d1), d2(d2), d3(d3),
-    width(width), height(width),  
+    width(width), height(height),  
     ex(base::unset<double>()), ey(base::unset<double>()),fisheye(false)
 {}
 
