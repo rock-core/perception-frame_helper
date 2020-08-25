@@ -717,7 +717,7 @@ namespace frame_helper
             {
             case MODE_RGB:
                 {
-                    cv::Mat out = cv::imdecode(src.image,CV_LOAD_IMAGE_COLOR);
+                    cv::Mat out = cv::imdecode(src.image,cv::IMREAD_COLOR);
                     dst.init(out.cols,out.rows,8,MODE_RGB);
                     cv::cvtColor(out,FrameHelper::convertToCvMat(dst),cv::COLOR_BGR2RGB);
                     break;
@@ -726,7 +726,7 @@ namespace frame_helper
                 //PNG --> BGR
             case MODE_BGR:
                 {
-                    cv::Mat out = cv::imdecode(src.image,CV_LOAD_IMAGE_COLOR);
+                    cv::Mat out = cv::imdecode(src.image,cv::IMREAD_COLOR);
                     copyMatToFrame(out,dst);
                     break;
                 }

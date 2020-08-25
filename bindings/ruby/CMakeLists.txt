@@ -6,7 +6,7 @@ pkg_check_modules(TYPELIBRUBY "typelib_ruby")
 if (TYPELIB_FOUND AND TYPELIBRUBY_FOUND AND GEM_FOUND)
     rock_ruby_rice_extension(frame_helper_ruby SHARED
         SOURCES FrameHelperRice.cpp
-        DEPS_PKGCONFIG rtt_typelib-$ENV{OROCOS_TARGET} typelib_ruby base-types)
+        DEPS_PKGCONFIG ${OPENCV_PACKAGE} rtt_typelib-$ENV{OROCOS_TARGET} typelib_ruby base-types)
     target_link_libraries(frame_helper_ruby frame_helper ${GEM_LIBRARIES})
 else()
     if (NOT TYPELIB_FOUND)
