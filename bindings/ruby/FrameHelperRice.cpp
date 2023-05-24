@@ -33,13 +33,19 @@ template<> Frame* from_ruby<Frame*>(Object object)
     return (Frame*)cxx_data;
 }
 
-FrameHelper sframe_helper;
+void convert(Frame& src, Frame& dst)
+{
+    FrameHelper sframe_helper;
+    sframe_helper.convert(src, dst);
+}
 void saveFrame(std::string filename,Frame& frame)
 {
+    FrameHelper sframe_helper;
     sframe_helper.saveFrame(filename,frame);
 }
 void loadFrame(std::string filename,Frame& frame)
 {
+    FrameHelper sframe_helper;
     sframe_helper.loadFrame(filename,frame);
 }
 
@@ -50,6 +56,7 @@ void Init_frame_helper_ruby()
   Rice::Data_Type<FrameHelper> rb_cFrameHelper =
     define_class<FrameHelper>("FrameHelper")
     .define_constructor(Constructor<FrameHelper>())
+    .define_singleton_method("convert", &convert,(Arg("src"), Arg("dst")))
     .define_singleton_method("save_frame", &saveFrame,(Arg("filename"),Arg("image")))
     .define_singleton_method("load_frame", &loadFrame,(Arg("filename"),Arg("image")))
     .define_method("save_frame", &frame_helper::FrameHelper::saveFrame,(Arg("filename"),Arg("image")))
