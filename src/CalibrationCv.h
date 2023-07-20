@@ -7,15 +7,15 @@
 
 namespace frame_helper
 {
-    /** 
-     * Storage structure for opencv undistort maps. 
+    /**
+     * Storage structure for opencv undistort maps.
      *
      * Use the setCalibration function to calculate camMatrix and distCoeffs cv
      * structures.  Optionally set R and P matrices manually (see
      * cv::initUndistortRectifyMap). Call initCv to initiallize map1 and map2,
      * which can be used for the remap call for undistorting an image.
      */
-    struct CameraCalibrationCv 
+    struct CameraCalibrationCv
     {
 	CameraCalibrationCv();
 	void setCalibration( const CameraCalibration& calib );
@@ -39,7 +39,7 @@ namespace frame_helper
 	bool initialized;
     };
 
-    /** 
+    /**
      * Storage structure for a stereo camera setup.
      *
      * Similar to CameraCalibrationCv, a call to setCallibration will trigger
@@ -59,7 +59,7 @@ namespace frame_helper
 
 	CameraCalibrationCv camLeft, camRight;
 	cv::Mat R, T, Q;
-	
+
     protected:
 	StereoCalibration calib;
 	cv::Size imageSize;
