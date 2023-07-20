@@ -631,10 +631,10 @@ namespace frame_helper
                     throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode bayer to grayscale with different data depths. Conversion is not implemented.");
 
                 // convert to RGB24 first and then to greyscale
-                frame_buffer3.init( src.getWidth(), src.getHeight(), src.getDataDepth(), MODE_RGB );
+                frame_buffer3.init( src.getWidth(), src.getHeight(), src.getDataDepth(), MODE_RGB,-1);
                 convertBayerToRGB24(src.getImageConstPtr(),frame_buffer3.getImagePtr(),src.getWidth(),src.getHeight(),src.frame_mode);
 
-                dst.init(src.getWidth(),src.getHeight(),src.getDataDepth(),dst.getFrameMode());
+                dst.init(src.getWidth(),src.getHeight(),src.getDataDepth(),dst.getFrameMode(),-1);
                 convertRGBToGray(frame_buffer3,dst);
 
                 dst.copyImageIndependantAttributes(src);
@@ -718,7 +718,7 @@ namespace frame_helper
             case MODE_RGB:
                 {
                     cv::Mat out = cv::imdecode(src.image,cv::IMREAD_COLOR);
-                    dst.init(out.cols,out.rows,8,MODE_RGB);
+                    dst.init(out.cols,out.rows,8,MODE_RGB,-1);
                     cv::cvtColor(out,FrameHelper::convertToCvMat(dst),cv::COLOR_BGR2RGB);
                     break;
                 }
@@ -1091,7 +1091,7 @@ namespace frame_helper
         default:
             throw std::runtime_error( "Unknown format. Can not convert cv:Mat to Frame." );
         }
-        frame.init(src.cols,src.rows,color_depth,mode);
+        frame.init(src.cols,src.rows,color_depth,mode,-1);
         cv::Mat dst = FrameHelper::convertToCvMat(frame);
 
         //this is only working if dst has the right size otherwise
@@ -1123,7 +1123,7 @@ namespace frame_helper
     {
         base::samples::frame::Frame temp;
         frame_mode_t mode = frame.frame_mode == MODE_GRAYSCALE ? MODE_GRAYSCALE : MODE_BGR;
-        temp.init(frame.getWidth(),frame.getHeight(),frame.getDataDepth(),mode);
+        temp.init(frame.getWidth(),frame.getHeight(),frame.getDataDepth(),mode,-1);
         convertColor(frame,temp);
         cv::imwrite(filename.c_str(),convertToCvMat(temp));
     }
