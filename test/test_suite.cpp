@@ -5,7 +5,6 @@
 #define BOOST_TEST_MODULE "frame_helper"
 #define BOOST_AUTO_TEST_MAIN
 #include "../src/FrameHelper.h"
-#include <boost/test/auto_unit_test.hpp>
 #include <boost/test/unit_test.hpp>
 #include <iostream>
 #include <opencv2/highgui/highgui.hpp>
@@ -37,8 +36,9 @@ bool compareImages(cv::Mat src1, cv::Mat src2)
 
 BOOST_AUTO_TEST_CASE(convert_image)
 {
+    std::string const filename = TEST_SRC_DIR + string("/test.jpg");
     // load image
-    cv::Mat original = cv::imread(TEST_SRC_DIR + string("/test.jpg"));
+    cv::Mat original = cv::imread(filename);
     BOOST_CHECK(NULL != original.data);
 
     // check if convertion is working
@@ -79,6 +79,18 @@ BOOST_AUTO_TEST_CASE(convert_image)
     grayscale_fs["Image"] >> grayscale_sheet;
     grayscale_fs.release();
     BOOST_CHECK(compareImages(grayscale_sheet, gray));
+
+    Frame frame_jpeg;
+    FrameHelper::loadFrameJPEG(filename, frame_jpeg);
+    BOOST_CHECK(frame_jpeg.size == frame.size);
+    BOOST_CHECK_EQUAL(frame_jpeg.frame_mode, MODE_JPEG);
+    frame_helper.convertColor(frame, frame_jpeg);
+
+    Frame frame_jpeg_dataonly;
+    FrameHelper::loadFrameJPEG(frame_jpeg.image.data(), frame_jpeg.image.size(), frame_jpeg_dataonly);
+    frame_jpeg_dataonly.setImage(frame_jpeg.image);
+    BOOST_CHECK(frame_jpeg_dataonly.size == frame.size);
+    BOOST_CHECK_EQUAL(frame_jpeg_dataonly.frame_mode, MODE_JPEG);
 }
 
 BOOST_AUTO_TEST_CASE(load_calibration_file)

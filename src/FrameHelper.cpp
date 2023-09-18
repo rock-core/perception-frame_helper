@@ -1133,4 +1133,16 @@ namespace frame_helper
         cv::Mat mat = cv::imread(filename.c_str());
         copyMatToFrame(mat,frame);
     }
+
+    void FrameHelper::loadFrameJPEG(const std::string &filename, base::samples::frame::Frame &frame)
+    {
+        conversion::JpegConversion::loadJpeg(filename, 0, 0, frame);
+    }
+    void FrameHelper::loadFrameJPEG(const uint8_t* src, size_t size, base::samples::frame::Frame &frame)
+    {
+        frame.init(0, 0, 8, MODE_JPEG);
+        frame.setImage(src, size);
+        frame.size = conversion::JpegConversion::getSize(src, size);
+    }
+
 }
