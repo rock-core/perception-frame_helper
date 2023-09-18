@@ -91,6 +91,13 @@ BOOST_AUTO_TEST_CASE(convert_image)
     frame_jpeg_dataonly.setImage(frame_jpeg.image);
     BOOST_CHECK(frame_jpeg_dataonly.size == frame.size);
     BOOST_CHECK_EQUAL(frame_jpeg_dataonly.frame_mode, MODE_JPEG);
+
+    Frame decompressed(original.cols, original.rows, 8, MODE_BGR, -1);
+    frame_helper.convertColor(frame_jpeg, decompressed);
+
+    cv::Mat converted_decompressed = FrameHelper::convertToCvMat(decompressed);
+    BOOST_CHECK(compareImages(original, converted_decompressed));
+
 }
 
 BOOST_AUTO_TEST_CASE(load_calibration_file)
