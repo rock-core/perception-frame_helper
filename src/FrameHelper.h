@@ -157,6 +157,16 @@ namespace frame_helper
     
             void saveFrame(const std::string &filename,base::samples::frame::Frame const &frame);
             void loadFrame(const std::string &filename,base::samples::frame::Frame &frame);
+
+            /**
+             * Loads a JPEG image from file without decompressing it (can be useful if frame is directly transmitted afterwards)
+             */
+            static void loadFrameJPEG(const std::string &filename, base::samples::frame::Frame &frame);
+            /**
+             * Loads JPEG image from memory without decompressing it.
+             * If frame.size=={0,0} before calling this function, it is set automatically based on the JPEG header.
+             */
+            static void loadFrameJPEG(const uint8_t* src, size_t size, base::samples::frame::Frame &frame);
     };
 };
 #endif // FRAMEHELPER_H
