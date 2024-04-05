@@ -80,6 +80,24 @@ BOOST_AUTO_TEST_CASE(convert_image)
     grayscale_fs.release();
     BOOST_CHECK(compareImages(grayscale_sheet, gray));
 
+    Frame frame_rgb(300, 300, 8, MODE_RGB);
+    frame_helper.convert(frame_grayscale, frame_rgb);
+    cv::Mat rgb = FrameHelper::convertToCvMat(frame_rgb);
+
+    cv::Mat expected_rgb;
+    cv::cvtColor(gray, expected_rgb, cv::COLOR_GRAY2RGB);
+    BOOST_CHECK(compareImages(expected_rgb, rgb));
+    BOOST_CHECK_EQUAL(frame_rgb.frame_mode, MODE_RGB);
+
+    Frame frame_bgr(300, 300, 8, MODE_BGR);
+    frame_helper.convert(frame_grayscale, frame_bgr);
+    cv::Mat bgr = FrameHelper::convertToCvMat(frame_bgr);
+
+    cv::Mat expected_bgr;
+    cv::cvtColor(gray, expected_bgr, cv::COLOR_GRAY2BGR);
+    BOOST_CHECK(compareImages(expected_bgr, bgr));
+    BOOST_CHECK_EQUAL(frame_bgr.frame_mode, MODE_BGR);
+
     Frame frame_jpeg;
     FrameHelper::loadFrameJPEG(filename, frame_jpeg);
     BOOST_CHECK(frame_jpeg.size == frame.size);

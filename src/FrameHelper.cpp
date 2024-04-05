@@ -526,6 +526,26 @@ namespace frame_helper
                 break;
             }
 
+                //GRAYSCALE --> BGR
+            case MODE_BGR:
+            {
+                const cv::Mat cv_src = FrameHelper::convertToCvMat(src);
+                dst.init(cv_src.cols, cv_src.rows, src.getDataDepth(), dst.frame_mode, -1);
+                cv::Mat cv_dst = FrameHelper::convertToCvMat(dst);
+                cv::cvtColor(cv_src,cv_dst,cv::COLOR_GRAY2BGR);
+                break;
+            }
+
+                //GRAYSCALE --> RGB
+            case MODE_RGB:
+            {
+                const cv::Mat cv_src = FrameHelper::convertToCvMat(src);
+                dst.init(cv_src.cols, cv_src.rows, src.getDataDepth(), dst.frame_mode, -1);
+                cv::Mat cv_dst = FrameHelper::convertToCvMat(dst);
+                cv::cvtColor(cv_src,cv_dst,cv::COLOR_GRAY2RGB);
+                break;
+            }
+
             default:
                 throw std::runtime_error("FrameHelper::convertColor: Cannot convert frame mode grayscale to ?. Conversion is not implemented.");
                 break;
