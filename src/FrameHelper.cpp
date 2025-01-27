@@ -273,7 +273,25 @@ namespace frame_helper {
         dst.init(src, false);
         const cv::Mat cv_src = FrameHelper::convertToCvMat(src);
         cv::Mat cv_dst = FrameHelper::convertToCvMat(dst);
-        remap(cv_src, cv_dst, calibration.map1, calibration.map2, undistort_algorithm);
+        cv::InterpolationFlags interpolation_flag;
+        switch (undistort_algorithm) {
+            case INTER_LINEAR:
+                interpolation_flag = cv::INTER_LINEAR;
+                break;
+            case INTER_NEAREST:
+                interpolation_flag = cv::INTER_NEAREST;
+                break;
+            case INTER_AREA:
+                interpolation_flag = cv::INTER_AREA;
+                break;
+            case INTER_LANCZOS4:
+                interpolation_flag = cv::INTER_LANCZOS4;
+                break;
+            case INTER_CUBIC:
+                interpolation_flag = cv::INTER_CUBIC;
+                break;
+        }
+        remap(cv_src, cv_dst, calibration.map1, calibration.map2, interpolation_flag);
 
         // encode the focal length and center into the frame
         calibration.getCalibration().toFrame(dst);
