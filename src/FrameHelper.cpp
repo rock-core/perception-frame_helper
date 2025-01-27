@@ -150,9 +150,9 @@ namespace frame_helper {
         base::samples::frame::Frame& dst,
         int offset_x,
         int offset_y,
-        ResizeAlgorithm const& resize_algorithm,
+        InterpolationAlgorithm const& resize_algorithm,
         bool bdewrap,
-        ResizeAlgorithm const& undistort_algorithm)
+        InterpolationAlgorithm const& undistort_algorithm)
     {
         // set bayer pattern if not specified
         if (dst.getFrameMode() == MODE_BAYER && src.isBayer()) {
@@ -242,7 +242,7 @@ namespace frame_helper {
 
     void FrameHelper::undistort(const base::samples::frame::Frame& src,
         base::samples::frame::Frame& dst,
-        ResizeAlgorithm const& undistort_algorithm)
+        InterpolationAlgorithm const& undistort_algorithm)
     {
         // check if format is supported
         if (src.getFrameMode() != MODE_RGB && src.getFrameMode() != MODE_GRAYSCALE)
@@ -284,7 +284,7 @@ namespace frame_helper {
         base::samples::frame::Frame& dst,
         int offset_x,
         int offset_y,
-        ResizeAlgorithm algo)
+        InterpolationAlgorithm algo)
     {
         // check if both images have the same color format
         if (src.getFrameMode() != dst.getFrameMode())

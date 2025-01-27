@@ -1,10 +1,8 @@
 #ifndef FRAMEHELPERTYPES_H
 #define FRAMEHELPERTYPES_H
 
-namespace frame_helper
-{
-    enum ResizeAlgorithm
-    {
+namespace frame_helper {
+    enum InterpolationAlgorithm {
         INTER_LINEAR,
         INTER_NEAREST,
         INTER_AREA,
