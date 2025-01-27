@@ -47,7 +47,7 @@ namespace frame_helper {
             int offset_y = 0,
             InterpolationAlgorithm const& resize_algorithm = INTER_LINEAR,
             bool bundistort = false,
-            InterpolationAlgorithm const& undistort_algorithm = INTER_LINEAR);
+            InterpolationAlgorithm const& undistort_algorithm = INTER_CUBIC);
 
         // sets the calibration paramter for the camera
         // parameter. Be aware that this does not set the R and P parameter
