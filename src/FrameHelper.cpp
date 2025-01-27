@@ -150,8 +150,9 @@ namespace frame_helper {
         base::samples::frame::Frame& dst,
         int offset_x,
         int offset_y,
-        ResizeAlgorithm algo,
-        bool bdewrap)
+        ResizeAlgorithm const& resize_algorithm,
+        bool bdewrap,
+        ResizeAlgorithm const& undistort_algorithm)
     {
         // set bayer pattern if not specified
         if (dst.getFrameMode() == MODE_BAYER && src.isBayer()) {
@@ -183,13 +184,13 @@ namespace frame_helper {
                 dst.init(src, true);
                 break;
             case RESIZE:
-                resize(src, dst, offset_x, offset_y, algo);
+                resize(src, dst, offset_x, offset_y, resize_algorithm);
                 break;
             case COLOR:
                 convertColor(src, dst);
                 break;
             case UNDISTORT:
-                undistort(src, dst);
+                undistort(src, dst, undistort_algorithm);
                 break;
             case RESIZE + COLOR:
                 frame_buffer.init(src.getWidth(),
@@ -198,19 +199,19 @@ namespace frame_helper {
                     dst.getFrameMode(),
                     false);
                 convertColor(src, frame_buffer);
-                resize(frame_buffer, dst, offset_x, offset_y, algo);
+                resize(frame_buffer, dst, offset_x, offset_y, resize_algorithm);
                 break;
             case RESIZE + UNDISTORT:
                 dst.attributes.clear();
                 frame_buffer2.init(dst, false);
-                resize(src, frame_buffer2, offset_x, offset_y, algo);
-                undistort(frame_buffer2, dst);
+                resize(src, frame_buffer2, offset_x, offset_y, resize_algorithm);
+                undistort(frame_buffer2, dst, undistort_algorithm);
                 break;
             case COLOR + UNDISTORT:
                 dst.attributes.clear();
                 frame_buffer2.init(dst, false);
                 convertColor(src, frame_buffer2);
-                undistort(frame_buffer2, dst);
+                undistort(frame_buffer2, dst, undistort_algorithm);
                 break;
             case RESIZE + COLOR + UNDISTORT:
                 dst.attributes.clear();
@@ -221,8 +222,8 @@ namespace frame_helper {
                     false);
                 convertColor(src, frame_buffer);
                 frame_buffer2.init(dst, false);
-                resize(frame_buffer, frame_buffer2, offset_x, offset_y, algo);
-                undistort(frame_buffer2, dst);
+                resize(frame_buffer, frame_buffer2, offset_x, offset_y, resize_algorithm);
+                undistort(frame_buffer2, dst, undistort_algorithm);
                 break;
         }
         dst.copyImageIndependantAttributes(src);
@@ -240,7 +241,8 @@ namespace frame_helper {
     }
 
     void FrameHelper::undistort(const base::samples::frame::Frame& src,
-        base::samples::frame::Frame& dst)
+        base::samples::frame::Frame& dst,
+        ResizeAlgorithm const& undistort_algorithm)
     {
         // check if format is supported
         if (src.getFrameMode() != MODE_RGB && src.getFrameMode() != MODE_GRAYSCALE)
@@ -271,7 +273,7 @@ namespace frame_helper {
         dst.init(src, false);
         const cv::Mat cv_src = FrameHelper::convertToCvMat(src);
         cv::Mat cv_dst = FrameHelper::convertToCvMat(dst);
-        remap(cv_src, cv_dst, calibration.map1, calibration.map2, cv::INTER_CUBIC);
+        remap(cv_src, cv_dst, calibration.map1, calibration.map2, undistort_algorithm);
 
         // encode the focal length and center into the frame
         calibration.getCalibration().toFrame(dst);
