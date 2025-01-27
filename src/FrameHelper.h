@@ -45,9 +45,9 @@ namespace frame_helper {
             base::samples::frame::Frame& dst,
             int offset_x = 0,
             int offset_y = 0,
-            InterpolationAlgorithm const& resize_algorithm = INTER_LINEAR,
+            ResizeAlgorithm const& resize_algorithm = INTER_LINEAR,
             bool bundistort = false,
-            InterpolationAlgorithm const& undistort_algorithm = INTER_CUBIC);
+            UndistortAlgorithm const& undistort_algorithm = UNDISTORT_CUBIC);
 
         // sets the calibration paramter for the camera
         // parameter. Be aware that this does not set the R and P parameter
@@ -65,7 +65,7 @@ namespace frame_helper {
         // see cv::remap
         void undistort(const base::samples::frame::Frame& src,
             base::samples::frame::Frame& dst,
-            InterpolationAlgorithm const& resize_algorithm);
+            UndistortAlgorithm const& resize_algorithm);
 
         // copies a cv::Mat into a Frame
         // frame is initialized if it has not got the right size
@@ -86,7 +86,7 @@ namespace frame_helper {
             base::samples::frame::Frame& dst,
             int offset_x = 0,
             int offset_y = 0,
-            InterpolationAlgorithm algo = INTER_LINEAR);
+            ResizeAlgorithm algo = INTER_LINEAR);
 
         // rotates a frame by 180 degrees
         // dst is inititialized as a copy of src with rotated image

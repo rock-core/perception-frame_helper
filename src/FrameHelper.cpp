@@ -150,9 +150,9 @@ namespace frame_helper {
         base::samples::frame::Frame& dst,
         int offset_x,
         int offset_y,
-        InterpolationAlgorithm const& resize_algorithm,
+        ResizeAlgorithm const& resize_algorithm,
         bool bdewrap,
-        InterpolationAlgorithm const& undistort_algorithm)
+        UndistortAlgorithm const& undistort_algorithm)
     {
         // set bayer pattern if not specified
         if (dst.getFrameMode() == MODE_BAYER && src.isBayer()) {
@@ -242,7 +242,7 @@ namespace frame_helper {
 
     void FrameHelper::undistort(const base::samples::frame::Frame& src,
         base::samples::frame::Frame& dst,
-        InterpolationAlgorithm const& undistort_algorithm)
+        UndistortAlgorithm const& undistort_algorithm)
     {
         // check if format is supported
         if (src.getFrameMode() != MODE_RGB && src.getFrameMode() != MODE_GRAYSCALE)
@@ -275,19 +275,19 @@ namespace frame_helper {
         cv::Mat cv_dst = FrameHelper::convertToCvMat(dst);
         cv::InterpolationFlags interpolation_flag;
         switch (undistort_algorithm) {
-            case INTER_LINEAR:
+            case UNDISTORT_LINEAR:
                 interpolation_flag = cv::INTER_LINEAR;
                 break;
-            case INTER_NEAREST:
+            case UNDISTORT_NEAREST:
                 interpolation_flag = cv::INTER_NEAREST;
                 break;
-            case INTER_AREA:
+            case UNDISTORT_AREA:
                 interpolation_flag = cv::INTER_AREA;
                 break;
-            case INTER_LANCZOS4:
+            case UNDISTORT_LANCZOS4:
                 interpolation_flag = cv::INTER_LANCZOS4;
                 break;
-            case INTER_CUBIC:
+            case UNDISTORT_CUBIC:
                 interpolation_flag = cv::INTER_CUBIC;
                 break;
         }
@@ -302,7 +302,7 @@ namespace frame_helper {
         base::samples::frame::Frame& dst,
         int offset_x,
         int offset_y,
-        InterpolationAlgorithm algo)
+        ResizeAlgorithm algo)
     {
         // check if both images have the same color format
         if (src.getFrameMode() != dst.getFrameMode())
