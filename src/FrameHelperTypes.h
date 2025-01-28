@@ -12,5 +12,13 @@ namespace frame_helper
         INTER_LANCZOS4,
         BAYER_RESIZE
     };
+    enum UndistortAlgorithm
+    {
+        UNDISTORT_LINEAR,
+        UNDISTORT_NEAREST,
+        UNDISTORT_AREA,
+        UNDISTORT_CUBIC,
+        UNDISTORT_LANCZOS4
+    };
 };
 #endif
