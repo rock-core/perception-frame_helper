@@ -43,8 +43,10 @@ namespace frame_helper
             //call setCalibrationParameters to set the calibration parameters
             //this is none static because an internal buffer is used which is not be resized if the
             //src and dst have always the same attributes
-            void convert(const base::samples::frame::Frame &src,base::samples::frame::Frame &dst,
-                    int offset_x = 0, int offset_y = 0, ResizeAlgorithm algo = INTER_LINEAR, bool bundistort=false);
+            void convert(const base::samples::frame::Frame &src,
+                    base::samples::frame::Frame &dst, int offset_x = 0, int offset_y = 0,
+                    ResizeAlgorithm algo = INTER_LINEAR, bool bundistort=false,
+                    UndistortAlgorithm undistort_algorithm = UNDISTORT_CUBIC);
 
             //sets the calibration paramter for the camera
             //parameter. Be aware that this does not set the R and P parameter
@@ -60,8 +62,8 @@ namespace frame_helper
             //this is a convenience function to undistort a frame
             //call setCalibrationParameter first
             //see cv::remap 
-            void undistort(const base::samples::frame::Frame &src,base::samples::frame::Frame &dst);
-
+            void undistort(const base::samples::frame::Frame &src, base::samples::frame::Frame &dst, 
+                    UndistortAlgorithm undistort_algorithm = UNDISTORT_CUBIC);
 
             //copies a cv::Mat into a Frame
             //frame is initialized if it has not got the right size

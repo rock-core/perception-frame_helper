@@ -133,8 +133,9 @@ namespace frame_helper
             base::samples::frame::Frame &dst,
             int offset_x,
             int offset_y,
-            ResizeAlgorithm algo,
-            bool bdewrap)
+            ResizeAlgorithm resize_algorithm,
+            bool bdewrap,
+            UndistortAlgorithm undistort_algorithm)
     {
         //set bayer pattern if not specified
         if(dst.getFrameMode() == MODE_BAYER && src.isBayer()) {
@@ -167,38 +168,38 @@ namespace frame_helper
             dst.init(src,true);
             break;
         case RESIZE:
-            resize(src,dst,offset_x,offset_y,algo);
+            resize(src,dst,offset_x,offset_y,resize_algorithm);
             break;
         case COLOR:
             convertColor(src,dst);
             break;
         case UNDISTORT:
-            undistort(src,dst);
+            undistort(src,dst,undistort_algorithm);
             break;
         case RESIZE + COLOR:
             frame_buffer.init(src.getWidth(),src.getHeight(),dst.getDataDepth(),dst.getFrameMode(),false);
             convertColor(src,frame_buffer);
-            resize(frame_buffer,dst,offset_x,offset_y,algo);
+            resize(frame_buffer,dst,offset_x,offset_y,resize_algorithm);
             break;
         case RESIZE + UNDISTORT:
             dst.attributes.clear();
             frame_buffer2.init(dst,false);
-            resize (src,frame_buffer2,offset_x,offset_y,algo);
-            undistort(frame_buffer2,dst);
+            resize (src,frame_buffer2,offset_x,offset_y,resize_algorithm);
+            undistort(frame_buffer2,dst,undistort_algorithm);
             break;
         case COLOR + UNDISTORT:
             dst.attributes.clear();
             frame_buffer2.init(dst,false);
             convertColor(src, frame_buffer2);
-            undistort(frame_buffer2,dst);
+            undistort(frame_buffer2,dst,undistort_algorithm);
             break;
         case RESIZE + COLOR + UNDISTORT:
             dst.attributes.clear();
             frame_buffer.init(src.getWidth(),src.getHeight(),dst.getDataDepth(),dst.getFrameMode(),false);
             convertColor(src,frame_buffer);
             frame_buffer2.init(dst,false);
-            resize(frame_buffer,frame_buffer2,offset_x,offset_y,algo);
-            undistort(frame_buffer2,dst);
+            resize(frame_buffer,frame_buffer2,offset_x,offset_y,resize_algorithm);
+            undistort(frame_buffer2,dst,undistort_algorithm);
             break;
         }
         dst.copyImageIndependantAttributes(src);
@@ -215,8 +216,27 @@ namespace frame_helper
 	calibration = para;
     }
 
+    static cv::InterpolationFlags undistortAlgorithmToCV(UndistortAlgorithm const& undistort_algorithm)
+    {
+        switch (undistort_algorithm) {
+            case UNDISTORT_LINEAR:
+                return cv::INTER_LINEAR;
+            case UNDISTORT_NEAREST:
+                return  cv::INTER_NEAREST;
+            case UNDISTORT_AREA:
+                return cv::INTER_AREA;
+            case UNDISTORT_LANCZOS4:
+                return cv::INTER_LANCZOS4;
+            case UNDISTORT_CUBIC:
+                return cv::INTER_CUBIC;
+            default:
+                throw std::runtime_error("Invalid value received for undistort_algorithm");
+        }
+    }
+
     void FrameHelper::undistort(const base::samples::frame::Frame &src,
-            base::samples::frame::Frame &dst)
+            base::samples::frame::Frame &dst,
+            UndistortAlgorithm undistort_algorithm)
     {
         // check if format is supported
         if(src.getFrameMode() != MODE_RGB && src.getFrameMode() != MODE_GRAYSCALE )
@@ -247,7 +267,8 @@ namespace frame_helper
         dst.init(src,false);
         const cv::Mat cv_src = FrameHelper::convertToCvMat(src);
         cv::Mat cv_dst = FrameHelper::convertToCvMat(dst);
-        remap(cv_src, cv_dst, calibration.map1, calibration.map2, cv::INTER_CUBIC);
+        auto undistort_algorithm_cv = undistortAlgorithmToCV(undistort_algorithm);
+        remap(cv_src, cv_dst, calibration.map1, calibration.map2, undistort_algorithm_cv);
 
         //encode the focal length and center into the frame
 	calibration.getCalibration().toFrame( dst );
